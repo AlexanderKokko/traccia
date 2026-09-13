@@ -2549,15 +2549,18 @@ export default function Navbar() {
 
           <div className="flex items-center gap-2 shrink-0">
             {userName && (
-              <>
-                <span className="text-[13px] text-ink-soft hidden sm:inline max-w-[120px] truncate">
-                  {userName}
-                </span>
-                <button onClick={handleLogout} className="btn-ghost !py-1.5 !px-3 !text-[13px]">
-                  <LogOut className="w-3.5 h-3.5" strokeWidth={2} />
-                  <span className="hidden sm:inline">{t('logout', lang)}</span>
-                </button>
-              </>
+              <span className="text-[13px] text-ink-soft hidden sm:inline max-w-[120px] truncate">
+                {userName}
+              </span>
+            )}
+
+            {/* Without accounts there is nothing to log out of — the button would
+                only reset the local name, which is not what it says it does. */}
+            {isCloudBacked && userName && (
+              <button onClick={handleLogout} className="btn-ghost !py-1.5 !px-3 !text-[13px]">
+                <LogOut className="w-3.5 h-3.5" strokeWidth={2} />
+                <span className="hidden sm:inline">{t('logout', lang)}</span>
+              </button>
             )}
 
             <ThemeToggle />
