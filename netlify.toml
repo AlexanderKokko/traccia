@@ -1,0 +1,9 @@
+# Build settings for a Git-connected deploy. Routing and security headers live
+# in public/_redirects and public/_headers instead, so they also apply when the
+# dist/ folder is uploaded directly.
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"

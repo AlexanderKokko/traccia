@@ -1,0 +1,10 @@
+{
+  "name": "Traccia — Diario sintomi",
+  "short_name": "Traccia",
+  "description": "Diario sintomi digitale per pazienti con malattie croniche.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F9FAFB",
+  "theme_color": "#4FAF82",
+  "icons": [{ "src": "/leaf.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

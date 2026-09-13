@@ -1,0 +1,4 @@
+# Traccia is a single-page app: the router resolves every route in the browser.
+# Without this, a direct hit on /andamento — or an emailed /reset-password link —
+# would return Netlify's 404, because no such file exists on disk.
+/*  /index.html  200

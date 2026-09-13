@@ -1,0 +1,262 @@
+import { useEffect, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Plus, X, Trash2 } from 'lucide-react'
+import { db } from '@/api/client'
+import { useLanguage } from '@/lib/LanguageContext'
+import { useDataSync } from '@/lib/useDataSync'
+import { t } from '@/lib/translations'
+import { formatDateInput } from '@/lib/dateUtils'
+import { getConditionList, getCondition } from '@/lib/conditions'
+import { toast } from '@/components/ui/toast-bus'
+
+const EMPTY = {
+  condition: '',
+  custom_name: '',
+  diagnosis_date: '',
+  yearOnly: false,
+  diagnosis_year: '',
+}
+
+export default function Patologies() {
+  const { lang } = useLanguage()
+  const conditions = getConditionList(lang)
+  const [pathologies, setPathologies] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [formOpen, setFormOpen] = useState(false)
+  const [form, setForm] = useState(EMPTY)
+
+  const load = () => {
+    db.entities.Pathology.list('-created_date')
+      .then(setPathologies)
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }
+
+  useEffect(load, [])
+  useDataSync(load)
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!form.condition) return
+    try {
+      await db.entities.Pathology.create({
+        condition: form.condition,
+        custom_name: form.condition === 'altro' ? form.custom_name : null,
+        diagnosis_date: form.yearOnly ? null : form.diagnosis_date || null,
+        diagnosis_year: form.yearOnly && form.diagnosis_year ? parseInt(form.diagnosis_year) : null,
+      })
+      setForm(EMPTY)
+      setFormOpen(false)
+      load()
+      toast({
+        title: lang === 'it' ? 'Patologia aggiunta' : 'Pathology added',
+        description:
+          lang === 'it'
+            ? 'La condizione è stata salvata nel tuo profilo'
+            : 'The condition was saved to your profile',
+      })
+    } catch (err) {
+      console.error(err)
+      toast({
+        variant: 'destructive',
+        title: lang === 'it' ? 'Salvataggio non riuscito' : 'Save failed',
+        description: String(err?.message || err),
+      })
+    }
+  }
+
+  const handleDelete = async (id) => {
+    await db.entities.Pathology.delete(id)
+    load()
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between gap-4 mb-6">
+        <div>
+          <h1 className="font-display text-[28px] sm:text-[34px] font-600 text-ink leading-[1.12] tracking-tight">
+            {t('my_pathologies_title', lang)}
+          </h1>
+          <p className="text-ink/55 text-[14px] mt-1.5">{t('my_pathologies_subtitle', lang)}</p>
+        </div>
+        <button onClick={() => setFormOpen(!formOpen)} className="btn-primary shrink-0">
+          <Plus className="w-4 h-4" strokeWidth={2.4} />
+          <span className="hidden sm:inline">{t('add_pathology', lang)}</span>
+        </button>
+      </div>
+
+      <AnimatePresence>
+        {formOpen && (
+          <motion.form
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            onSubmit={handleSubmit}
+            className="card-float p-5 sm:p-6 mb-6 space-y-4 overflow-hidden"
+          >
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-[13px] font-500 text-ink/70 block mb-1.5">
+                  {t('condition_label', lang)}
+                </label>
+                <select
+                  value={form.condition}
+                  onChange={(e) => setForm({ ...form, condition: e.target.value })}
+                  className="input-float"
+                >
+                  <option value="">{t('select_placeholder', lang)}</option>
+                  {conditions.map((c) => (
+                    <option key={c.key} value={c.key}>
+                      {c.emoji} {c.label}
+                    </option>
+                  ))}
+                  <option value="altro">📄 {t('other', lang)}</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[13px] font-500 text-ink/70 block mb-1.5">
+                  {t('diagnosis_date_label', lang)}
+                </label>
+                {form.yearOnly ? (
+                  <input
+                    type="number"
+                    min={1940}
+                    max={new Date().getFullYear()}
+                    value={form.diagnosis_year}
+                    onChange={(e) => setForm({ ...form, diagnosis_year: e.target.value })}
+                    placeholder={lang === 'it' ? 'es. 2021' : 'e.g. 2021'}
+                    className="input-float font-mono-data"
+                  />
+                ) : (
+                  <input
+                    type="date"
+                    value={form.diagnosis_date}
+                    onChange={(e) => setForm({ ...form, diagnosis_date: e.target.value })}
+                    className="input-float"
+                  />
+                )}
+                <label className="flex items-center gap-2 mt-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={form.yearOnly}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        yearOnly: e.target.checked,
+                        diagnosis_date: e.target.checked ? '' : form.diagnosis_date,
+                        diagnosis_year: e.target.checked ? form.diagnosis_year : '',
+                      })
+                    }
+                    className="w-[16px] h-[16px] rounded-[5px] accent-[#4FAF82]"
+                  />
+                  <span className="text-[13px] text-ink-soft">{t('year_only', lang)}</span>
+                </label>
+              </div>
+            </div>
+
+            {form.condition === 'altro' && (
+              <div>
+                <label className="text-[13px] font-500 text-ink/70 block mb-1.5">
+                  {t('pathology_name_label', lang)}
+                </label>
+                <input
+                  type="text"
+                  value={form.custom_name}
+                  onChange={(e) => setForm({ ...form, custom_name: e.target.value })}
+                  placeholder={t('pathology_name_placeholder', lang)}
+                  className="input-float"
+                />
+              </div>
+            )}
+
+            <div className="flex gap-2">
+              <button type="submit" className="btn-primary">
+                {t('save_pathology', lang)}
+              </button>
+              <button
+                type="button"
+                onClick={() => setFormOpen(false)}
+                aria-label={lang === 'en' ? 'Close form' : 'Chiudi il modulo'}
+                className="btn-ghost"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </motion.form>
+        )}
+      </AnimatePresence>
+
+      {loading ? (
+        <div className="flex justify-center py-16">
+          <div className="spinner" />
+        </div>
+      ) : pathologies.length === 0 ? (
+        <div className="card-float p-12 text-center">
+          <p className="text-ink/45 text-sm">{t('no_pathologies', lang)}</p>
+        </div>
+      ) : (
+        <div className="grid sm:grid-cols-2 gap-4">
+          {pathologies.map((p, i) => {
+            const condition = getCondition(p.condition, lang)
+            const label = condition ? condition.label : p.custom_name || t('other', lang)
+            const emoji = condition ? condition.emoji : '📄'
+            const color = condition ? condition.color : '#7A8B85'
+
+            return (
+              <motion.div
+                key={p.id}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 }}
+                className="card-float p-5 relative overflow-hidden"
+              >
+                <div
+                  className="absolute top-0 left-0 w-full h-1"
+                  style={{ backgroundColor: color }}
+                />
+                <div className="flex items-start justify-between mb-3 mt-1">
+                  <div className="flex items-center gap-2.5">
+                    <div
+                      className="flex items-center justify-center w-10 h-10 rounded-2xl text-[20px]"
+                      style={{ backgroundColor: color + '14' }}
+                    >
+                      {emoji}
+                    </div>
+                    <h3 className="font-display text-[17px] font-600 text-ink">{label}</h3>
+                  </div>
+                  <button
+                    onClick={() => handleDelete(p.id)}
+                    className="text-ink/35 hover:text-[#C56B6B] transition-colors"
+                    aria-label={t('remove', lang)}
+                  >
+                    <Trash2 className="w-[17px] h-[17px]" strokeWidth={2} />
+                  </button>
+                </div>
+
+                <p className="text-[12px] text-ink/45 mb-3 font-mono-data">
+                  {p.diagnosis_year
+                    ? `${t('diagnosed_in_year', lang)} ${p.diagnosis_year}`
+                    : p.diagnosis_date
+                      ? `${t('diagnosed_on', lang)}: ${formatDateInput(p.diagnosis_date, lang)}`
+                      : t('date_not_specified', lang)}
+                </p>
+
+                {condition && (
+                  <div>
+                    <p className="text-[10px] font-600 text-brand-dark uppercase tracking-[0.1em] mb-1.5">
+                      {t('monitored_data', lang)}
+                    </p>
+                    <p className="text-[13px] text-ink-soft leading-relaxed">
+                      {condition.fields.map((f) => f.label).join(' · ')}
+                    </p>
+                  </div>
+                )}
+              </motion.div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
