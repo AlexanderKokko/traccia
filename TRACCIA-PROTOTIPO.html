@@ -1,0 +1,1969 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Traccia — prototipo</title>
+
+<!--
+  ============================================================================
+  TRACCIA — PROTOTIPO COMPLETO / FULL PROTOTYPE
+  ============================================================================
+
+  The whole app in one file. Open it by double-clicking. Nothing to install.
+
+  TO CHANGE SOMETHING, ask Claude:
+    "Here is our app prototype. <what you want changed>.
+     Give me back the complete file."
+
+  Everything lives below in three blocks:
+    1. <style>  — colours, cards, buttons, the whole look
+    2. DATA     — the nine conditions and every interface string (IT + EN)
+    3. <script> — the screens, one React function each
+
+  Needs an internet connection the first time, to load React.
+
+  This is a PROTOTYPE for deciding how things should look. Nothing is saved,
+  and changes here do not reach the real app — they get rebuilt there.
+  ============================================================================
+-->
+
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        background: 'hsl(var(--background))',
+        card: 'hsl(var(--card))',
+        brand: { DEFAULT: '#4FAF82', dark: '#3B9A6E', soft: '#E8F5EE', softer: '#F0F9F4' },
+        ink: { DEFAULT: 'hsl(var(--c-ink))', soft: 'hsl(var(--c-ink-soft))' },
+        canvas: 'hsl(var(--c-canvas))',
+        line: { DEFAULT: 'hsl(var(--c-line))', soft: 'hsl(var(--c-line-soft))' },
+      },
+      backgroundColor: { 'brand-soft': '#E8F5EE', 'brand-softer': '#F0F9F4' },
+      textColor: { 'brand-dark': '#3B9A6E', 'ink-soft': 'hsl(var(--c-ink-soft))' },
+      borderColor: { 'line-soft': 'hsl(var(--c-line-soft))' },
+      fontFamily: { display: ['var(--font-display)'] },
+    },
+  },
+}
+</script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;450;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+
+
+
+
+  :root {
+    /* Raw palette */
+    --bg: #f9fafb;
+    --surface: #ffffff;
+    --ink: #1a2f2a;
+    --muted: #7a8b85;
+    --line: #ebeeec;
+    --brand: #4faf82;
+    --brand-dark: #3b9a6e;
+    --brand-soft: #e8f5ee;
+
+    /* shadcn-compatible tokens */
+    --background: 210 20% 98%;
+    --foreground: 166 29% 14%;
+    --card: 0 0% 100%;
+    --card-foreground: 166 29% 14%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 166 29% 14%;
+    --primary: 152 38% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 140 8% 93%;
+    --secondary-foreground: 166 29% 14%;
+    --muted: 140 8% 93%;
+    --muted-foreground: 159 7% 51%;
+    --accent: 148 39% 94%;
+    --accent-foreground: 152 38% 30%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 140 8% 93%;
+    --input: 140 8% 93%;
+    --ring: 152 38% 50%;
+    --radius: 14px;
+
+    /* Traccia semantic tokens */
+    --c-ink: 166 29% 14%;
+    --c-ink-soft: 160 10% 33%;
+    --c-canvas: 210 20% 98%;
+    --c-line: 140 8% 92%;
+    --c-line-soft: 140 8% 95%;
+    --c-surface2: 140 8% 96%;
+    --garden-ground-1: 140 16% 90%;
+    --garden-ground-2: 140 16% 84%;
+
+    --font-heading: 'Fraunces', Georgia, serif;
+    --font-display: 'Fraunces', Georgia, serif;
+    --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  }
+
+  .dark {
+    --background: 165 32% 5%;
+    --foreground: 140 14% 94%;
+    --card: 165 30% 9%;
+    --card-foreground: 140 14% 94%;
+    --popover: 165 30% 9%;
+    --popover-foreground: 140 14% 94%;
+    --primary: 152 40% 58%;
+    --primary-foreground: 165 32% 5%;
+    --secondary: 165 28% 14%;
+    --secondary-foreground: 140 14% 94%;
+    --muted: 165 28% 14%;
+    --muted-foreground: 140 10% 68%;
+    --accent: 165 28% 16%;
+    --accent-foreground: 140 14% 94%;
+    --destructive: 0 60% 42%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 165 28% 18%;
+    --input: 165 28% 18%;
+    --ring: 152 40% 58%;
+
+    --c-ink: 140 14% 92%;
+    --c-ink-soft: 140 8% 68%;
+    --c-canvas: 165 32% 5%;
+    --c-line: 165 28% 18%;
+    --c-line-soft: 165 28% 16%;
+    --c-surface2: 165 28% 16%;
+    --garden-ground-1: 165 28% 14%;
+    --garden-ground-2: 165 28% 12%;
+  }
+
+  * {
+    border-color: hsl(var(--border));
+    outline-color: hsl(var(--ring) / 0.5);
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    background-image: radial-gradient(
+      1100px 560px at 50% -8%,
+      rgba(79, 175, 130, 0.07),
+      transparent 60%
+    );
+    background-attachment: fixed;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  .font-display {
+    font-family: var(--font-heading);
+    letter-spacing: -0.01em;
+  }
+
+  /* ---------- Cards ---------- */
+  .card-float {
+    background-color: rgba(255, 255, 255, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    border-radius: 20px;
+    box-shadow:
+      0 1px 2px rgba(16, 24, 22, 0.03),
+      0 18px 40px -14px rgba(16, 24, 22, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  .card-float-lg {
+    background-color: rgba(255, 255, 255, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    border-radius: 24px;
+    box-shadow:
+      0 1px 3px rgba(16, 24, 22, 0.04),
+      0 24px 48px -16px rgba(16, 24, 22, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  .card-inner {
+    background-color: #f4f7f5;
+    border: 1px solid #eef1f0;
+    border-radius: 16px;
+  }
+
+  .dark .card-float,
+  .dark .card-float-lg {
+    background-color: rgba(22, 34, 30, 0.62);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.3),
+      0 22px 48px -16px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .dark .card-inner {
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .dark .bg-brand-soft {
+    background-color: rgba(79, 175, 130, 0.16);
+  }
+
+  .dark .bg-brand-softer {
+    background-color: rgba(79, 175, 130, 0.1);
+  }
+
+  /* ---------- Inputs ---------- */
+  .input-float {
+    width: 100%;
+    height: 52px;
+    border: 1px solid #ebeeec;
+    border-radius: 16px;
+    background-color: #fff;
+    padding: 0 16px;
+    font-size: 14px;
+    font-weight: 450;
+    color: #1a2f2a;
+    outline: none;
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease,
+      background-color 0.15s ease;
+    appearance: none;
+  }
+
+  .input-float::placeholder {
+    color: rgba(26, 47, 42, 0.38);
+  }
+
+  .input-float:hover {
+    border-color: #dde3df;
+  }
+
+  .input-float:focus {
+    border-color: #4faf82;
+    box-shadow: 0 0 0 4px rgba(79, 175, 130, 0.12);
+    background-color: #fff;
+  }
+
+  select.input-float {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237A8B85' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 40px;
+  }
+
+  .dark .input-float {
+    background-color: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+    color: hsl(var(--c-ink));
+  }
+
+  .dark .input-float::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+  }
+
+  .dark select.input-float {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a8b5b0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  }
+
+  /* ---------- Buttons ---------- */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #54b88e, #42a577);
+    color: #fff;
+    font-weight: 500;
+    font-size: 14px;
+    border-radius: 14px;
+    padding: 13px 22px;
+    border: none;
+    cursor: pointer;
+    box-shadow:
+      0 6px 18px -5px rgba(79, 175, 130, 0.45),
+      inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    transition:
+      transform 0.1s ease,
+      box-shadow 0.15s ease,
+      filter 0.15s ease;
+  }
+
+  .btn-primary:hover {
+    filter: brightness(1.05);
+    box-shadow:
+      0 10px 24px -5px rgba(79, 175, 130, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  }
+
+  .btn-primary:active {
+    transform: scale(0.97);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    filter: none;
+  }
+
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #fff;
+    color: #1a2f2a;
+    font-weight: 500;
+    font-size: 14px;
+    border: 1px solid #ebeeec;
+    border-radius: 14px;
+    padding: 11px 18px;
+    cursor: pointer;
+    transition:
+      border-color 0.15s ease,
+      background-color 0.15s ease,
+      transform 0.1s ease;
+  }
+
+  .btn-ghost:hover {
+    border-color: #dde3df;
+    background-color: #f9fafb;
+  }
+
+  .btn-ghost:active {
+    transform: scale(0.97);
+  }
+
+  .dark .btn-ghost {
+    background: rgba(255, 255, 255, 0.04);
+    color: hsl(var(--c-ink));
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .btn-link {
+    color: #4faf82;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.15s ease;
+    background: none;
+    border: none;
+    padding: 0;
+  }
+
+  .btn-link:hover {
+    color: #3b9a6e;
+  }
+
+  .btn-link.danger {
+    color: #c56b6b;
+  }
+
+  .btn-link.danger:hover {
+    color: #b05858;
+  }
+
+  /* ---------- Pills & chips ---------- */
+  .nav-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #7a8b85;
+    white-space: nowrap;
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .nav-tab:hover {
+    color: #465550;
+  }
+
+  .nav-tab.active {
+    background-color: #e8f5ee;
+    color: #1a3c34;
+  }
+
+  .dark .nav-tab {
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  .dark .nav-tab:hover {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .dark .nav-tab.active {
+    background-color: rgba(79, 175, 130, 0.18);
+    color: hsl(var(--c-ink));
+  }
+
+  .cond-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1.5px solid #ebeeec;
+    background: #fff;
+    color: #465550;
+    cursor: pointer;
+    transition:
+      border-color 0.15s ease,
+      background-color 0.15s ease,
+      transform 0.1s ease,
+      box-shadow 0.15s ease;
+  }
+
+  .cond-pill:hover {
+    border-color: #c8d4ce;
+    box-shadow: 0 2px 8px -2px rgba(16, 24, 22, 0.06);
+  }
+
+  .cond-pill:active {
+    transform: scale(0.96);
+  }
+
+  .toggle-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 13.5px;
+    font-weight: 500;
+    border: 1.5px solid #ebeeec;
+    background: #fff;
+    color: #465550;
+    cursor: pointer;
+    transition:
+      border-color 0.15s ease,
+      background-color 0.15s ease,
+      color 0.15s ease,
+      transform 0.1s ease;
+  }
+
+  .toggle-chip:hover {
+    border-color: #c8d4ce;
+  }
+
+  .toggle-chip:active {
+    transform: scale(0.96);
+  }
+
+  .dark .cond-pill,
+  .dark .toggle-chip {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+    color: hsl(var(--c-ink-soft));
+  }
+
+  /*
+   * Soft brand wash laid over a card's own surface.
+   *
+   * This is a CSS class rather than Tailwind gradient utilities because
+   * `from-*` / `via-*` stop utilities resolve to one literal color and ignore
+   * the `.dark .bg-brand-softer` override — so a light mint stop stayed light
+   * in dark mode and washed the whole card out white.
+   */
+  .card-sheen {
+    background-image: linear-gradient(
+      to bottom right,
+      #f0f9f4,
+      hsl(var(--background)) 50%,
+      hsl(var(--background))
+    );
+  }
+
+  .dark .card-sheen {
+    background-image: linear-gradient(
+      to bottom right,
+      rgba(79, 175, 130, 0.14),
+      hsl(var(--background)) 50%,
+      hsl(var(--background))
+    );
+  }
+
+  .modal-sheen {
+    background-image: linear-gradient(to bottom, #f0f9f4, #ffffff);
+  }
+
+  .dark .modal-sheen {
+    background-image: linear-gradient(to bottom, rgba(79, 175, 130, 0.1), transparent 60%);
+  }
+
+  /* ---------- Alert surfaces ---------- */
+  .warn-soft {
+    background-color: #fbeaec;
+  }
+
+  .dark .warn-soft {
+    background-color: rgba(197, 107, 107, 0.16);
+  }
+
+  .amber-soft {
+    background-color: #fbf0e3;
+  }
+
+  .dark .amber-soft {
+    background-color: rgba(184, 134, 59, 0.16);
+  }
+
+  /* ---------- Misc ---------- */
+  .spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #eef1f0;
+    border-top-color: #4faf82;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  .font-500 {
+    font-weight: 500;
+  }
+  .font-600 {
+    font-weight: 600;
+  }
+  .font-700 {
+    font-weight: 700;
+  }
+
+  .font-mono-data {
+    font-family: var(--font-mono);
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+input[type='range'].traccia-slider {
+  appearance: none;
+  height: 10px;
+  border-radius: 999px;
+  outline: none;
+}
+
+input[type='range'].traccia-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid #4faf82;
+  cursor: pointer;
+  box-shadow:
+    0 2px 8px rgba(79, 175, 130, 0.3),
+    0 1px 3px rgba(16, 24, 22, 0.08);
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.15s ease;
+}
+
+input[type='range'].traccia-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow:
+    0 4px 14px rgba(79, 175, 130, 0.4),
+    0 1px 3px rgba(16, 24, 22, 0.1);
+}
+
+input[type='range'].traccia-slider::-webkit-slider-thumb:active {
+  transform: scale(1.05);
+}
+
+input[type='range'].traccia-slider::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid #4faf82;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(79, 175, 130, 0.3);
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+}
+
+.print-only {
+  display: none;
+}
+
+
+
+/* ---- prototype only ---- */
+.font-500 { font-weight: 500 }
+.font-600 { font-weight: 600 }
+.font-700 { font-weight: 700 }
+.font-400 { font-weight: 400 }
+.font-mono-data { font-family: var(--font-mono) }
+.no-scrollbar::-webkit-scrollbar { display: none }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none }
+.card-sheen { background-image: linear-gradient(to bottom right, #f0f9f4, hsl(var(--background)) 50%, hsl(var(--background))) }
+.dark .card-sheen { background-image: linear-gradient(to bottom right, rgba(79,175,130,.14), hsl(var(--background)) 50%, hsl(var(--background))) }
+h1, h2, h3 { font-family: var(--font-heading) }
+</style>
+</head>
+
+<body>
+<div id="root"></div>
+
+<script>
+/* The nine conditions and every interface string, taken from the real app. */
+const TRACCIA_DATA = {"conditions":{"it":[{"key":"endometriosi","label":"Endometriosi","emoji":"🌙","color":"#B15E6C","definition":"L'endometriosi è una malattia infiammatoria cronica in cui un tessuto simile a quello che riveste l'utero (endometrio) cresce al di fuori dell'utero — su ovaie, tube o peritoneo pelvico. Può causare dolore pelvico cronico, mestruazioni molto dolorose, dolore durante i rapporti e, in alcuni casi, difficoltà a concepire.","alarmSymptoms":["Dolore pelvico acuto e improvviso molto intenso","Nausea o vomito intenso associato al dolore","Febbre alta (>38,5°C)","Sanguinamento vaginale abbondante e improvviso","Svenimento o vertigini improvvise"],"fields":[{"key":"pain_peak","type":"slider","label":"Dolore peggiore oggi (picco, non media)","min":0,"max":10},{"key":"daily_impact","type":"select","label":"Impatto sulle attività quotidiane","options":[{"value":"nessuno","label":"Nessuno"},{"value":"lieve","label":"Lieve"},{"value":"moderato","label":"Moderato — ho ridotto le attività"},{"value":"severo","label":"Severo — ho dovuto fermarmi"}]},{"key":"associated_symptoms","type":"chips","label":"Sintomi associati oggi","options":["Dispareunia","Sintomi intestinali","Sintomi urinari","Dolore lombare"]},{"key":"pain_med_taken","type":"select","label":"Hai preso un farmaco al bisogno per il dolore oggi?","options":[{"value":"si","label":"Sì"},{"value":"no","label":"No"}]},{"key":"pain_med_name","type":"text","label":"Nome del farmaco","placeholder":"es. Ibuprofene"}],"lifestyle":{"helps":["Alimentazione anti-infiammatoria (frutta, verdura, omega-3)","Attività fisica leggere e regolare (camminata, nuoto, yoga)","Curare sonno e gestione dello stress","Restare ben idratata"],"avoid":["Cibi ultra-processati e zuccheri raffinati","Eccesso di caffeina e alcol","Ignorare un dolore che peggiora progressivamente senza parlarne al medico"]},"contentCards":[{"title":"Il dolore non è \"normale\"","body":"Il dolore mestruale che interfere con le attività quotidiane non va considerato \"normale\" o da sopportare. Se i dolori ti costringono a modificare le tue abitudini, parlane con il tuo ginecologo."},{"title":"Tieni traccia dei cicli","body":"Registrare regolarità, intensità del dolore e sintomi associati al ciclo aiuta il medico a inquadrare meglio la situazione. Traccia anche i giorni senza sintomi: servono a costruire un quadro completo."}]},{"key":"ibd","label":"IBD","emoji":"🌀","color":"#5C7A99","definition":"Le malattie infiammatorie croniche intestinali (IBD) comprendono due forme principali, diverse tra loro: il Morbo di Crohn, che può colpire qualsiasi tratto dell'apparato digerente (dalla bocca all'ano) in modo discontinuo e \"a tutto spessore\" della parete intestinale, spesso con complicanze come fistole o stenosi; e la Colite Ulcerosa, che colpisce in modo continuo solo il colon e il retto, limitata allo strato più superficiale della mucosa, con sangue nelle feci più frequente. Entrambe condividono sintomi come dolore addominale, diarrea e stanchezza, ma localizzazione e complicanze tipiche differiscono.","alarmSymptoms":["Sangue abbondante nelle feci","Febbre alta (>38,5°C)","Dolore addominale intenso e improvviso","Distensione addominale marcata","Vomito persistente","Battito molto veloce (>120 bpm a riposo)"],"fields":[{"key":"ibd_type","type":"select","label":"Tipo di IBD (opzionale)","options":[{"value":"crohn","label":"Morbo di Crohn"},{"value":"colite_ulcerosa","label":"Colite Ulcerosa"},{"value":"indeterminata","label":"Colite indeterminata"},{"value":"non_specificato","label":"Non specificato"}]},{"key":"bristol_scale","type":"select","label":"Scala di Bristol","options":[{"value":"1","label":"Tipo 1 — sfere separate, dure"},{"value":"2","label":"Tipo 2 — a salsiccia, grumoso"},{"value":"3","label":"Tipo 3 — a salsiccia con crepe"},{"value":"4","label":"Tipo 4 — liscio e morbido"},{"value":"5","label":"Tipo 5 — pezzi morbidi"},{"value":"6","label":"Tipo 6 — pastoso"},{"value":"7","label":"Tipo 7 — liquido"}]},{"key":"bowel_movements","type":"number","label":"N. evacuazioni oggi","placeholder":"0"},{"key":"blood_present","type":"select","label":"Presenza di sangue","options":[{"value":"si","label":"Sì"},{"value":"no","label":"No"}]},{"key":"pain_location","type":"select","label":"Dolore addominale — zona","options":[{"value":"nessuna","label":"Nessuna"},{"value":"basso_dx","label":"Basso dx"},{"value":"basso_sx","label":"Basso sx"},{"value":"diffuso","label":"Diffuso"}]},{"key":"wellbeing_yesterday","type":"select","label":"Benessere generale di ieri (Harvey-Bradshaw)","options":[{"value":"molto_bene","label":"Molto bene"},{"value":"leggermente_sotto","label":"Leggermente sotto tono"},{"value":"scarso","label":"Scarso"},{"value":"molto_scarso","label":"Molto scarso"},{"value":"terribile","label":"Terribile"}]},{"key":"pain_intensity","type":"select","label":"Intensità dolore addominale","options":[{"value":"nessuno","label":"Nessuno"},{"value":"lieve","label":"Lieve"},{"value":"moderato","label":"Moderato"},{"value":"severo","label":"Severo"}]},{"key":"extraintestinal","type":"chips","label":"Manifestazioni extra-intestinali oggi","options":["Dolore articolare","Manifestazione cutanea","Fastidio oculare","Afte/ulcere orali"]}],"lifestyle":{"helps":["Alimentazione mediterranea, varia, ricca di frutta e verdura","Pasti piccoli e frequenti nelle fasi attive","Restare ben idratata","Confrontarsi con un dietista specializzato in IBD"],"avoid":["Cibi ultra-processati, zuccheri aggiunti e sale in eccesso","Restrizioni alimentari drastiche non guidate da un professionista","Ignorare febbre, sangue abbondante o perdita di peso importante"]},"contentCards":[{"title":"Differenza tra IBD e sindrome dell'intestino irritabile","body":"L'IBD è una malattia infiammatoria con riscontro di lesioni all'intestino, mentre la sindrome dell'intestino irritabile (IBS) è un disturbo funzionale senza infiammazione visibile. Pur condividendo alcuni sintomi, sono condizioni diverse che richiedono percorsi diversi."},{"title":"Le riacutizzazioni e le fasi di remissione","body":"L'IBD ha un andamento a fasi alternate: periodi di riacutizzazione dei sintomi e periodi di remissione. Tieni traccia dei cambiamenti e segnala al medico eventuali peggioramenti prolungati."}]},{"key":"emicrania","label":"Emicrania","emoji":"🧠","color":"#7A6A9E","definition":"L'emicrania è una malattia neurologica con attacchi ricorrenti di mal di testa, spesso pulsante e da un lato solo, associato a nausea e sensibilità a luce e suoni. Ha un legame forte con la regolarità delle abitudini quotidiane.","alarmSymptoms":["Il mal di testa peggiore mai avuto comparso improvvisamente","Difficoltà a parlare o confusione improvvisa","Debolezza o intorpidimento a un lato del corpo","Perdita di equilibrio improvvisa","Visione doppia o perdita della vista","Febbre alta con rigidità del collo"],"fields":[{"key":"associated_symptoms","type":"checkbox","label":"Sintomi associati","options":["Nausea","Fotofobia","Fonofobia"]},{"key":"triggers","type":"chips","label":"Trigger possibili oggi","options":["Stress","Sonno alterato","Alimenti","Ciclo/ormonale","Schermi/luce"]},{"key":"impact","type":"select","label":"Impatto sulle attività","options":[{"value":"nessuno","label":"Nessuno"},{"value":"lieve","label":"Lieve"},{"value":"moderato","label":"Moderato"},{"value":"severo","label":"Severo"}]},{"key":"medication_response","type":"select","label":"Farmaco sintomatico assunto?","options":[{"value":"no","label":"No"},{"value":"si_funzionato","label":"Sì — ha funzionato"},{"value":"si_parzialmente","label":"Sì — parzialmente"},{"value":"si_non_funzionato","label":"Sì — non ha funzionato"}]}],"lifestyle":{"helps":["Orari regolari di sonno e pasti","Restare ben idratata","Attività fisica moderata e regolare","Tecniche di gestione dello stress"],"avoid":["Saltare i pasti (può abbassare la glicemia e scatenare un attacco)","Eccesso di caffeina o interruzione brusca","Fumo ed esposizione al fumo passivo","Attività fisica improvvisa e troppo intensa"]},"contentCards":[{"title":"L'emicrania non è \"solo un mal di testa\"","body":"L'emicrania è una condizione neurologica complessa, non un semplice mal di testa. Gli attacchi possono durare da ore a giorni e includere sintomi come nausea, sensibilità alla luce e al rumore. Riconoscere i propri trigger è un passo importante."},{"title":"Il diario degli attacchi","body":"Registrare quando iniziano gli attacchi, la durata, i possibili trigger e la risposta ai farmaci aiuta il neurologo a personalizzare il trattamento. La regolarità delle abitudini è uno degli elementi chiave nella gestione."}]},{"key":"diabete","label":"Diabete","emoji":"🍬","color":"#B8863B","definition":"Il diabete è una condizione cronica in cui il corpo non produce abbastanza insulina o non la utilizza correttamente, causando livelli di glucosio nel sangue troppo alti. Nel tempo, se non ben gestito, può danneggiare vasi sanguigni, nervi, reni e occhi.","alarmSymptoms":["Glicemia molto bassa con confusione o quasi perdita di coscienza","Glicemia molto alta con nausea/vomito persistente","Respiro rapido e profondo o alito con odore fruttato","Forte dolore addominale","Confusione o difficoltà a restare sveglia/o"],"fields":[{"key":"glycemia","type":"number","label":"Glicemia (mg/dL)","placeholder":"es. 110"},{"key":"measurement_moment","type":"select","label":"Momento della misurazione","options":[{"value":"digiuno","label":"Digiuno"},{"value":"prima_pasto","label":"Prima pasto"},{"value":"dopo_pasto","label":"Dopo pasto (2h)"},{"value":"prima_dormire","label":"Prima di dormire"}]},{"key":"symptoms","type":"chips","label":"Sintomi oggi","options":["Sintomi di ipoglicemia","Sintomi di iperglicemia"]},{"key":"medication","type":"select","label":"Farmaco/insulina assunto come da terapia?","options":[{"value":"si","label":"Sì"},{"value":"no","label":"No"},{"value":"parzialmente","label":"Parzialmente"}]},{"key":"exercise_minutes","type":"number","label":"Attività fisica minuti oggi","placeholder":"0"}],"lifestyle":{"helps":["Pasti regolari e bilanciati, senza saltarli","Attività fisica regolare","Monitorare la glicemia come indicato dal medico","Assumere la terapia come prescritta"],"avoid":["Saltare i pasti o digiuni prolungati non concordati","Bevande zuccherate e cibi ultra-processati","Ignorare sintomi di ipoglicemia (tremore, sudorazione, confusione)"]},"contentCards":[{"title":"I valori di riferimento della glicemia","body":"I range mostrati nell'app (es. digiuno 70-130 mg/dL) sono basati sulle linee guida ADA e servono come riferimento. Il tuo target personale può differire: il diabetologo stabilisce gli obiettivi più adatti a te."},{"title":"Riconoscere l'ipoglicemia","body":"Tremore, sudorazione, palpitazioni, fame improvvisa e confusione possono segnalare un calo di zuccheri. Avere sempre con sé zuccheri rapidi (es. succo di frutta) e registrare l'episodio aiuta a prevenire future situazioni a rischio."}]},{"key":"pcos","label":"PCOS","emoji":"🌸","color":"#3E8E82","definition":"La sindrome dell'ovaio policistico (PCOS) è una condizione endocrina comune caratterizzata da cicli mestruali irregolari o assenti, segni di eccesso di androgeni (come acne o crescita di peli in eccesso) e, spesso, resistenza all'insulina. È una delle cause più frequenti di infertilità legata all'ovulazione.","alarmSymptoms":["Dolore pelvico acuto e improvviso molto intenso","Nausea o vomito intenso associato al dolore","Febbre alta","Svenimento o vertigini improvvise","Sanguinamento vaginale abbondante e anomalo"],"fields":[{"key":"cycle_day","type":"number","label":"Giorno del ciclo (opzionale)","placeholder":"es. 14"},{"key":"cycle_length","type":"number","label":"Lunghezza dell'ultimo ciclo (giorni)","placeholder":"es. 28"},{"key":"androgen_symptoms","type":"chips","label":"Sintomi androgenici oggi","options":["Acne","Crescita pelo viso/corpo","Diradamento capelli"]},{"key":"sugar_cravings","type":"select","label":"Voglie di zuccheri/carboidrati oggi","options":[{"value":"nessuna","label":"Nessuna"},{"value":"lievi","label":"Lievi"},{"value":"moderate","label":"Moderate"},{"value":"intense","label":"Intense"}]},{"key":"weight","type":"number","label":"Peso (kg, opzionale)","unit":"kg","placeholder":"es. 65"}],"lifestyle":{"helps":["Alimentazione a basso indice glicemico, ricca di fibre","Attività fisica regolare (aiuta la sensibilità insulinica)","Monitorare regolarità e lunghezza del ciclo","Curare il sonno e la gestione dello stress"],"avoid":["Cibi ultra-processati e zuccheri raffinati","Digiuni prolungati e diete drastiche","Ignorare cicli assenti per molti mesi consecutivi senza parlarne al medico"]},"contentCards":[{"title":"Criteri di Rotterdam","body":"La diagnosi di PCOS si basa sui criteri di Rotterdam: almeno 2 su 3 tra cicli irregolari/anovulazione, segni di eccesso androgeno e ovaie policistiche all'ecografia. Solo il medico può fare la diagnosi: l'app ti aiuta a tenere traccia dei dati."},{"title":"Resistenza all'insulina e stile di vita","body":"Molte persone con PCOS hanno resistenza all'insulina. L'attività fisica regolare e un'alimentazione a basso indice glicemico possono migliorare la sensibilità insulinica e la regolarità del ciclo."}]},{"key":"ipertiroidismo","label":"Ipertiroidismo","emoji":"⚡","color":"#C9694F","definition":"L'ipertiroidismo è una condizione in cui la tiroide produce un eccesso di ormoni tiroidei, accelerando il metabolismo del corpo. Può causare battito cardiaco accelerato o irregolare, perdita di peso involontaria, tremore, sudorazione eccessiva, ansia e insonnia. La causa più comune è il morbo di Graves.","alarmSymptoms":["Dolore al petto","Svenimento","Difficoltà respiratoria","Battito molto veloce (>120 bpm a riposo)","Battito molto lento (<45 bpm)","Confusione improvvisa","Febbre alta (>38,5°C)"],"fields":[{"key":"heart_rate","type":"number","label":"Frequenza cardiaca a riposo (bpm, opzionale)","placeholder":"es. 80"},{"key":"weight","type":"number","label":"Peso (kg, opzionale)","unit":"kg","placeholder":"es. 65"},{"key":"symptoms","type":"chips","label":"Sintomi oggi","options":["Palpitazioni","Tremore","Sudorazione eccessiva","Insonnia","Irritabilità/ansia"]}],"lifestyle":{"helps":["Assumere la terapia esattamente come prescritta e agli orari indicati","Monitorare frequenza cardiaca e peso","Limitare la caffeina","Riposo adeguato nonostante l'iperattività percepita"],"avoid":["Sospendere o modificare la terapia senza parlarne al medico","Eccesso di iodio senza supervisione medica","Ignorare palpitazioni persistenti o perdita di peso rapida e importante"]},"contentCards":[{"title":"Il morbo di Graves","body":"La causa più comune di ipertiroidismo è il morbo di Graves, una malattia autoimmune in cui il sistema immunitario stimola la tiroide a produrre troppi ormoni. Esistono anche altre cause: il medico stabilirà quella specifica del tuo caso."},{"title":"Monitorare battito e peso","body":"Registrare regolarmente la frequenza cardiaca a riposo e il peso aiuta a seguire l'andamento nel tempo. Variazioni rapide e importanti vanno segnalate tempestivamente al medico."}]},{"key":"ipotiroidismo","label":"Ipotiroidismo","emoji":"🐢","color":"#5A5FA6","definition":"L'ipotiroidismo è una condizione in cui la tiroide non produce abbastanza ormoni tiroidei, rallentando il metabolismo del corpo. Può causare stanchezza persistente, aumento di peso, intolleranza al freddo, stipsi, pelle secca, caduta di capelli e difficoltà di concentrazione. La causa più comune è la tiroidite di Hashimoto.","alarmSymptoms":["Dolore al petto","Svenimento","Difficoltà respiratoria","Battito molto veloce (>120 bpm a riposo)","Battito molto lento (<45 bpm)","Confusione improvvisa","Febbre alta (>38,5°C)"],"fields":[{"key":"fatigue","type":"slider","label":"Livello di stanchezza","min":0,"max":10},{"key":"weight","type":"number","label":"Peso (kg, opzionale)","unit":"kg","placeholder":"es. 65"},{"key":"symptoms","type":"chips","label":"Sintomi oggi","options":["Intolleranza al freddo","Stipsi","Pelle secca/caduta capelli","Difficoltà di concentrazione","Umore basso"]},{"key":"daytime_sleepiness","type":"select","label":"Sonnolenza durante il giorno?","options":[{"value":"si","label":"Sì"},{"value":"no","label":"No"}]},{"key":"mood_today","type":"select","label":"Come descriveresti il tuo umore oggi?","options":[{"value":"ottimo","label":"Ottimo"},{"value":"buono","label":"Buono"},{"value":"normale","label":"Normale"},{"value":"triste","label":"Triste"},{"value":"molto_depresso","label":"Molto depresso"}]},{"key":"bp_systolic","type":"number","label":"Pressione sistolica (mmHg, opzionale)","placeholder":"es. 120"},{"key":"bp_diastolic","type":"number","label":"Pressione diastolica (mmHg, opzionale)","placeholder":"es. 80"},{"key":"body_temp","type":"number","label":"Temperatura corporea (°C, opzionale)","placeholder":"es. 36.5"},{"key":"thyroid_intensity","type":"slider","label":"Quanto sono stati intensi oggi i sintomi della tiroide?","min":1,"max":10}],"lifestyle":{"helps":["Assumere la levotiroxina a digiuno, sempre alla stessa ora, come prescritta","Attendere almeno 30-60 minuti prima di mangiare o assumere altri farmaci/integratori","Attività fisica regolare e leggera","Alimentazione equilibrata con adeguato apporto di fibre"],"avoid":["Assumere la levotiroxina insieme a calcio, ferro o caffè (ne riducono l'assorbimento)","Sospendere la terapia perché \"ci si sente meglio\"","Ignorare stanchezza estrema e persistente pensando sia solo stress"]},"contentCards":[{"title":"La tiroidite di Hashimoto","body":"La causa più comune di ipotiroidismo è la tiroidite di Hashimoto, una malattia autoimmune in cui il sistema immunitario attacca la tiroide riducendone la funzione. È diagnosticata tramite esami del sangue (TSH, FT4, anticorpi anti-TPO)."},{"title":"Levotiroxina: l'assorbimento conta","body":"La levotiroxina va assunta a digiono, preferibilmente al mattino, aspettando 30-60 minuti prima di mangiare o assumere altri farmaci/integratori (soprattutto calcio e ferro, che ne riducono l'assorbimento). La costanza negli orari migliora la stabilità dei valori."}]},{"key":"fibromialgia","label":"Fibromialgia","emoji":"🌫️","color":"#9B6B8C","definition":"La fibromialgia è una malattia cronica caratterizzata da dolore muscoloscheletrico diffuso, presente da almeno tre mesi, spesso accompagnato da rigidità, sonno non ristoratore, stanchezza cronica e difficoltà di concentrazione (la cosiddetta \"nebbia mentale\"). Colpisce prevalentemente le donne, con un picco tra i 40 e i 60 anni.","alarmSymptoms":["Dolore al petto","Debolezza improvvisa e severa a un lato del corpo","Febbre alta (>38,5°C)","Gonfiore intenso e improvviso di una singola articolazione","Perdita di peso importante e non spiegata"],"fields":[{"key":"pain_areas","type":"chips","label":"Aree del corpo dolenti oggi (WPI)","options":["Braccia","Gambe","Schiena","Collo e spalle","Torace","Addome","Testa e viso"]},{"key":"restful_sleep","type":"select","label":"Sonno ristoratore stanotte?","options":[{"value":"si","label":"Sì"},{"value":"no","label":"No"}]},{"key":"brain_fog","type":"select","label":"Nebbia mentale oggi","options":[{"value":"nessuna","label":"Nessuna"},{"value":"lieve","label":"Lieve"},{"value":"moderata","label":"Moderata"},{"value":"intensa","label":"Intensa"}]},{"key":"morning_stiffness_min","type":"number","label":"Rigidità mattutina (minuti, opzionale)","unit":"min","placeholder":"es. 30"},{"key":"fatigue","type":"slider","label":"Livello di stanchezza","min":0,"max":10},{"key":"triggers","type":"chips","label":"Possibili trigger oggi","options":["Stress","Variazioni meteo","Sforzo fisico","Sonno alterato"]}],"lifestyle":{"helps":["Attività fisica leggera e graduale (stretching, nuoto, cammino)","Tecniche di gestione dello stress e rilassamento","Orari di sonno regolari","Ritmare le attività alternando sforzo e riposo"],"avoid":["Sforzi fisici intensi e improvvisi","Lunghi periodi di inattività totale","Ignorare un peggioramento marcato pensando sia \"solo stanchezza\""]},"contentCards":[{"title":"Non è \"tutto nella tua testa\"","body":"La fibromialgia è una condizione reale e riconosciuta, caratterizzata da una maggiore sensibilità al dolore. Non è un'invenzione e il dolore che avverti è reale. Una diagnosi chiara aiuta a intraprendere il percorso più adatto."},{"title":"Ritmo e gradualità","body":"L'attività fisica leggera e regolare, il sonno coerente e la gestione dello stress sono tra gli elementi più efficaci. L'obiettivo non è l'intensità, ma la costanza: piccoli passi ripetuti nel tempo."}]},{"key":"artrite_reumatoide","label":"Artrite Reumatoide","emoji":"🦴","color":"#8C7355","definition":"L'artrite reumatoide è una malattia infiammatoria autoimmune cronica che provoca dolore, gonfiore, rigidità e progressiva perdita di funzione delle articolazioni. Colpisce più frequentemente le piccole articolazioni di mani, polsi e piedi, in modo simmetrico. È diversa dall'artrosi (osteoartrosi), che è un processo degenerativo legato all'usura delle articolazioni, non su base autoimmune.","alarmSymptoms":["Febbre alta con un'articolazione molto calda, gonfia e dolorante (possibile artrite settica)","Dolore al petto o difficoltà respiratoria","Arrossamento e dolore oculare intenso","Intorpidimento o debolezza improvvisa","Gonfiore severo e improvviso di più articolazioni con malessere generale"],"fields":[{"key":"morning_stiffness_min","type":"number","label":"Rigidità mattutina (minuti)","unit":"min","placeholder":"es. 45"},{"key":"joint_swelling","type":"select","label":"Gonfiore articolare oggi?","options":[{"value":"si","label":"Sì"},{"value":"no","label":"No"}]},{"key":"affected_joints","type":"chips","label":"Articolazioni coinvolte oggi","options":["Mani e polsi","Gomiti","Spalle","Ginocchia","Caviglie e piedi","Colonna cervicale"]},{"key":"daily_impact","type":"select","label":"Impatto sulle attività quotidiane","options":[{"value":"nessuno","label":"Nessuno"},{"value":"lieve","label":"Lieve"},{"value":"moderato","label":"Moderato — ho ridotto le attività"},{"value":"severo","label":"Severo — ho dovuto fermarmi"}]}],"lifestyle":{"helps":["Assumere la terapia regolarmente, anche nei periodi senza sintomi","Attività fisica a basso impatto per mantenere la mobilità articolare","Applicare calore o freddo sulle articolazioni doloranti secondo le indicazioni del medico","Proteggere le articolazioni nei gesti quotidiani"],"avoid":["Interrompere la terapia perché \"ci si sente meglio\"","Sforzi articolari ripetuti e prolungati durante una riacutizzazione","Ignorare una singola articolazione molto calda e gonfia, specialmente con febbre"]},"contentCards":[{"title":"Artrite reumatoide e artrosi non sono la stessa cosa","body":"L'artrite reumatoide è una malattia autoimmune: il sistema immunitario attacca le articolazioni causando infiammazione. L'artrosi, invece, è un processo degenerativo legato all'usura della cartilagine. Hanno cause, trattamenti e prognosi diversi da chiarire con il reumatologo."},{"title":"La rigidità mattutina è un segnale importante","body":"La rigidità al risveglio, e quanto tempo ci vuole per migliorare, è un indicatore che aiuta il reumatologo a capire l'attività della malattia. Registrare i minuti di durata ogni giorno aiuta a costruire un quadro utile per le visite."}]}],"en":[{"key":"endometriosi","label":"Endometriosis","emoji":"🌙","color":"#B15E6C","definition":"Endometriosis is a chronic inflammatory disease in which tissue similar to the lining of the uterus (endometrium) grows outside the uterus — on the ovaries, fallopian tubes, or pelvic peritoneum. It can cause chronic pelvic pain, very painful periods, pain during intercourse, and, in some cases, difficulty conceiving.","alarmSymptoms":["Sudden, very intense acute pelvic pain","Severe nausea or vomiting associated with the pain","High fever (>38.5°C)","Sudden heavy vaginal bleeding","Sudden fainting or dizziness"],"fields":[{"key":"pain_peak","type":"slider","label":"Worst pain today (peak, not average)","min":0,"max":10},{"key":"daily_impact","type":"select","label":"Impact on daily activities","options":[{"value":"nessuno","label":"None"},{"value":"lieve","label":"Mild"},{"value":"moderato","label":"Moderate — I reduced activities"},{"value":"severo","label":"Severe — I had to stop"}]},{"key":"associated_symptoms","type":"chips","label":"Associated symptoms today","options":["Dyspareunia","Bowel symptoms","Urinary symptoms","Lower back pain"]},{"key":"pain_med_taken","type":"select","label":"Did you take an as-needed pain medication today?","options":[{"value":"si","label":"Yes"},{"value":"no","label":"No"}]},{"key":"pain_med_name","type":"text","label":"Medication name","placeholder":"e.g. Ibuprofen"}],"lifestyle":{"helps":["Anti-inflammatory diet (fruit, vegetables, omega-3)","Light, regular physical activity (walking, swimming, yoga)","Good sleep and stress management","Staying well hydrated"],"avoid":["Ultra-processed foods and refined sugars","Excess caffeine and alcohol","Ignoring progressively worsening pain without talking to your doctor"]},"contentCards":[{"title":"Pain is not \"normal\"","body":"Menstrual pain that interferes with daily activities should not be considered \"normal\" or something to endure. If pain forces you to change your habits, talk to your gynecologist."},{"title":"Track your cycles","body":"Recording cycle regularity, pain intensity, and associated symptoms helps your doctor better assess your situation. Track symptom-free days too — they help build a complete picture."}]},{"key":"ibd","label":"IBD","emoji":"🌀","color":"#5C7A99","definition":"Inflammatory bowel disease (IBD) includes two main, distinct forms: Crohn's disease, which can affect any part of the digestive tract (from mouth to anus) in a patchy, \"full-thickness\" pattern through the intestinal wall, often with complications like fistulas or strictures; and Ulcerative Colitis, which continuously affects only the colon and rectum, limited to the innermost lining, with blood in the stool more frequently. Both share symptoms like abdominal pain, diarrhea, and fatigue, but their typical location and complications differ.","alarmSymptoms":["Heavy blood in stool","High fever (>38.5°C)","Sudden, intense abdominal pain","Marked abdominal distension","Persistent vomiting","Very fast heart rate (>120 bpm at rest)"],"fields":[{"key":"ibd_type","type":"select","label":"Type of IBD (optional)","options":[{"value":"crohn","label":"Crohn's disease"},{"value":"colite_ulcerosa","label":"Ulcerative Colitis"},{"value":"indeterminata","label":"Indeterminate colitis"},{"value":"non_specificato","label":"Not specified"}]},{"key":"bristol_scale","type":"select","label":"Bristol stool scale","options":[{"value":"1","label":"Type 1 — separate hard lumps"},{"value":"2","label":"Type 2 — sausage-shaped, lumpy"},{"value":"3","label":"Type 3 — sausage with cracks"},{"value":"4","label":"Type 4 — smooth and soft"},{"value":"5","label":"Type 5 — soft blobs"},{"value":"6","label":"Type 6 — mushy"},{"value":"7","label":"Type 7 — liquid"}]},{"key":"bowel_movements","type":"number","label":"Number of bowel movements today","placeholder":"0"},{"key":"blood_present","type":"select","label":"Blood present","options":[{"value":"si","label":"Yes"},{"value":"no","label":"No"}]},{"key":"pain_location","type":"select","label":"Abdominal pain — location","options":[{"value":"nessuna","label":"None"},{"value":"basso_dx","label":"Lower right"},{"value":"basso_sx","label":"Lower left"},{"value":"diffuso","label":"Diffuse"}]},{"key":"wellbeing_yesterday","type":"select","label":"Yesterday's general wellbeing (Harvey-Bradshaw)","options":[{"value":"molto_bene","label":"Very well"},{"value":"leggermente_sotto","label":"Slightly off"},{"value":"scarso","label":"Poor"},{"value":"molto_scarso","label":"Very poor"},{"value":"terribile","label":"Terrible"}]},{"key":"pain_intensity","type":"select","label":"Abdominal pain intensity","options":[{"value":"nessuno","label":"None"},{"value":"lieve","label":"Mild"},{"value":"moderato","label":"Moderate"},{"value":"severo","label":"Severe"}]},{"key":"extraintestinal","type":"chips","label":"Extra-intestinal manifestations today","options":["Joint pain","Skin manifestation","Eye discomfort","Mouth sores/ulcers"]}],"lifestyle":{"helps":["Varied Mediterranean diet, rich in fruit and vegetables","Small, frequent meals during flares","Staying well hydrated","Consulting a dietitian specialized in IBD"],"avoid":["Ultra-processed foods, added sugars, and excess salt","Drastic dietary restrictions not guided by a professional","Ignoring fever, heavy blood, or significant weight loss"]},"contentCards":[{"title":"Difference between IBD and irritable bowel syndrome","body":"IBD is an inflammatory disease with visible intestinal damage, while irritable bowel syndrome (IBS) is a functional disorder without visible inflammation. While sharing some symptoms, they are different conditions requiring different approaches."},{"title":"Flares and remission phases","body":"IBD follows an alternating pattern: flare-ups and remission periods. Track changes and report any prolonged worsening to your doctor."}]},{"key":"emicrania","label":"Migraine","emoji":"🧠","color":"#7A6A9E","definition":"Migraine is a neurological disease with recurring headache attacks, often throbbing and one-sided, associated with nausea and sensitivity to light and sound. It has a strong link to the regularity of daily habits.","alarmSymptoms":["The worst headache ever, appearing suddenly","Sudden difficulty speaking or confusion","Weakness or numbness on one side of the body","Sudden loss of balance","Double vision or vision loss","High fever with neck stiffness"],"fields":[{"key":"associated_symptoms","type":"checkbox","label":"Associated symptoms","options":["Nausea","Photophobia","Phonophobia"]},{"key":"triggers","type":"chips","label":"Possible triggers today","options":["Stress","Altered sleep","Food","Cycle/hormonal","Screens/light"]},{"key":"impact","type":"select","label":"Impact on activities","options":[{"value":"nessuno","label":"None"},{"value":"lieve","label":"Mild"},{"value":"moderato","label":"Moderate"},{"value":"severo","label":"Severe"}]},{"key":"medication_response","type":"select","label":"Symptomatic medication taken?","options":[{"value":"no","label":"No"},{"value":"si_funzionato","label":"Yes — it worked"},{"value":"si_parzialmente","label":"Yes — partially"},{"value":"si_non_funzionato","label":"Yes — didn't work"}]}],"lifestyle":{"helps":["Regular sleep and meal times","Staying well hydrated","Moderate, regular physical activity","Stress management techniques"],"avoid":["Skipping meals (can lower blood sugar and trigger an attack)","Excess caffeine or abrupt withdrawal","Smoking and secondhand smoke exposure","Sudden, overly intense physical activity"]},"contentCards":[{"title":"Migraine is not \"just a headache\"","body":"Migraine is a complex neurological condition, not a simple headache. Attacks can last from hours to days and include symptoms like nausea and sensitivity to light and noise. Recognizing your own triggers is an important step."},{"title":"The attack diary","body":"Recording when attacks start, their duration, possible triggers, and response to medication helps your neurologist personalize treatment. Regular habits are a key element in management."}]},{"key":"diabete","label":"Diabetes","emoji":"🍬","color":"#B8863B","definition":"Diabetes is a chronic condition in which the body doesn't produce enough insulin or doesn't use it properly, causing blood glucose levels to be too high. Over time, if not well managed, it can damage blood vessels, nerves, kidneys, and eyes.","alarmSymptoms":["Very low blood sugar with confusion or near loss of consciousness","Very high blood sugar with persistent nausea/vomiting","Rapid, deep breathing or fruity-smelling breath","Severe abdominal pain","Confusion or difficulty staying awake"],"fields":[{"key":"glycemia","type":"number","label":"Blood glucose (mg/dL)","placeholder":"e.g. 110"},{"key":"measurement_moment","type":"select","label":"Measurement moment","options":[{"value":"digiuno","label":"Fasting"},{"value":"prima_pasto","label":"Before meal"},{"value":"dopo_pasto","label":"After meal (2h)"},{"value":"prima_dormire","label":"Before sleep"}]},{"key":"symptoms","type":"chips","label":"Symptoms today","options":["Hypoglycemia symptoms","Hyperglycemia symptoms"]},{"key":"medication","type":"select","label":"Medication/insulin taken as prescribed?","options":[{"value":"si","label":"Yes"},{"value":"no","label":"No"},{"value":"parzialmente","label":"Partially"}]},{"key":"exercise_minutes","type":"number","label":"Exercise minutes today","placeholder":"0"}],"lifestyle":{"helps":["Regular, balanced meals, not skipped","Regular physical activity","Monitoring blood glucose as directed by your doctor","Taking therapy as prescribed"],"avoid":["Skipping meals or unplanned prolonged fasting","Sugary drinks and ultra-processed foods","Ignoring hypoglycemia symptoms (shaking, sweating, confusion)"]},"contentCards":[{"title":"Blood glucose reference values","body":"The ranges shown in the app (e.g. fasting 70-130 mg/dL) are based on ADA guidelines and serve as a reference. Your personal target may differ — your diabetologist sets the goals best suited to you."},{"title":"Recognizing hypoglycemia","body":"Shaking, sweating, palpitations, sudden hunger, and confusion can signal low blood sugar. Always carrying fast-acting sugar (e.g. fruit juice) and logging the episode helps prevent future risky situations."}]},{"key":"pcos","label":"PCOS","emoji":"🌸","color":"#3E8E82","definition":"Polycystic ovary syndrome (PCOS) is a common endocrine condition characterized by irregular or absent menstrual cycles, signs of excess androgens (such as acne or excess hair growth), and often insulin resistance. It's one of the most common causes of ovulation-related infertility.","alarmSymptoms":["Sudden, very intense acute pelvic pain","Severe nausea or vomiting associated with the pain","High fever","Sudden fainting or dizziness","Heavy, abnormal vaginal bleeding"],"fields":[{"key":"cycle_day","type":"number","label":"Cycle day (optional)","placeholder":"e.g. 14"},{"key":"cycle_length","type":"number","label":"Length of last cycle (days)","placeholder":"e.g. 28"},{"key":"androgen_symptoms","type":"chips","label":"Androgenic symptoms today","options":["Acne","Facial/body hair growth","Hair thinning"]},{"key":"sugar_cravings","type":"select","label":"Sugar/carb cravings today","options":[{"value":"nessuna","label":"None"},{"value":"lievi","label":"Mild"},{"value":"moderate","label":"Moderate"},{"value":"intense","label":"Intense"}]},{"key":"weight","type":"number","label":"Weight (kg, optional)","unit":"kg","placeholder":"e.g. 65"}],"lifestyle":{"helps":["Low glycemic-index, fiber-rich diet","Regular physical activity (helps insulin sensitivity)","Monitoring cycle regularity and length","Good sleep and stress management"],"avoid":["Ultra-processed foods and refined sugars","Prolonged fasting and drastic diets","Ignoring absent cycles for many consecutive months without talking to your doctor"]},"contentCards":[{"title":"Rotterdam criteria","body":"PCOS diagnosis is based on the Rotterdam criteria: at least 2 of 3 among irregular cycles/anovulation, signs of androgen excess, and polycystic ovaries on ultrasound. Only a doctor can make the diagnosis — the app helps you track your data."},{"title":"Insulin resistance and lifestyle","body":"Many people with PCOS have insulin resistance. Regular physical activity and a low glycemic-index diet can improve insulin sensitivity and cycle regularity."}]},{"key":"ipertiroidismo","label":"Hyperthyroidism","emoji":"⚡","color":"#C9694F","definition":"Hyperthyroidism is a condition in which the thyroid produces excess thyroid hormones, speeding up the body's metabolism. It can cause a fast or irregular heartbeat, unintentional weight loss, tremor, excessive sweating, anxiety, and insomnia. The most common cause is Graves' disease.","alarmSymptoms":["Chest pain","Fainting","Difficulty breathing","Very fast heart rate (>120 bpm at rest)","Very slow heart rate (<45 bpm)","Sudden confusion","High fever (>38.5°C)"],"fields":[{"key":"heart_rate","type":"number","label":"Resting heart rate (bpm, optional)","placeholder":"e.g. 80"},{"key":"weight","type":"number","label":"Weight (kg, optional)","unit":"kg","placeholder":"e.g. 65"},{"key":"symptoms","type":"chips","label":"Symptoms today","options":["Palpitations","Tremor","Excessive sweating","Insomnia","Irritability/anxiety"]}],"lifestyle":{"helps":["Taking therapy exactly as prescribed and at the indicated times","Monitoring heart rate and weight","Limiting caffeine","Adequate rest despite the perceived hyperactivity"],"avoid":["Stopping or changing therapy without talking to your doctor","Excess iodine without medical supervision","Ignoring persistent palpitations or rapid, significant weight loss"]},"contentCards":[{"title":"Graves' disease","body":"The most common cause of hyperthyroidism is Graves' disease, an autoimmune disease in which the immune system stimulates the thyroid to produce too many hormones. Other causes exist too — your doctor will determine the specific one in your case."},{"title":"Monitoring heart rate and weight","body":"Regularly recording resting heart rate and weight helps track progress over time. Rapid, significant changes should be reported promptly to your doctor."}]},{"key":"ipotiroidismo","label":"Hypothyroidism","emoji":"🐢","color":"#5A5FA6","definition":"Hypothyroidism is a condition in which the thyroid doesn't produce enough thyroid hormones, slowing down the body's metabolism. It can cause persistent fatigue, weight gain, cold intolerance, constipation, dry skin, hair loss, and difficulty concentrating. The most common cause is Hashimoto's thyroiditis.","alarmSymptoms":["Chest pain","Fainting","Difficulty breathing","Very fast heart rate (>120 bpm at rest)","Very slow heart rate (<45 bpm)","Sudden confusion","High fever (>38.5°C)"],"fields":[{"key":"fatigue","type":"slider","label":"Fatigue level","min":0,"max":10},{"key":"weight","type":"number","label":"Weight (kg, optional)","unit":"kg","placeholder":"e.g. 65"},{"key":"symptoms","type":"chips","label":"Symptoms today","options":["Cold intolerance","Constipation","Dry skin/hair loss","Difficulty concentrating","Low mood"]},{"key":"daytime_sleepiness","type":"select","label":"Daytime sleepiness?","options":[{"value":"si","label":"Yes"},{"value":"no","label":"No"}]},{"key":"mood_today","type":"select","label":"How would you describe your mood today?","options":[{"value":"ottimo","label":"Great"},{"value":"buono","label":"Good"},{"value":"normale","label":"Normal"},{"value":"triste","label":"Sad"},{"value":"molto_depresso","label":"Very depressed"}]},{"key":"bp_systolic","type":"number","label":"Systolic blood pressure (mmHg, optional)","placeholder":"e.g. 120"},{"key":"bp_diastolic","type":"number","label":"Diastolic blood pressure (mmHg, optional)","placeholder":"e.g. 80"},{"key":"body_temp","type":"number","label":"Body temperature (°C, optional)","placeholder":"e.g. 36.5"},{"key":"thyroid_intensity","type":"slider","label":"How intense were your thyroid symptoms today?","min":1,"max":10}],"lifestyle":{"helps":["Taking levothyroxine fasting, always at the same time, as prescribed","Waiting at least 30-60 minutes before eating or taking other medications/supplements","Regular, light physical activity","Balanced diet with adequate fiber intake"],"avoid":["Taking levothyroxine together with calcium, iron, or coffee (reduces absorption)","Stopping therapy because you \"feel better\"","Ignoring extreme, persistent fatigue thinking it's just stress"]},"contentCards":[{"title":"Hashimoto's thyroiditis","body":"The most common cause of hypothyroidism is Hashimoto's thyroiditis, an autoimmune disease in which the immune system attacks the thyroid, reducing its function. It's diagnosed through blood tests (TSH, FT4, anti-TPO antibodies)."},{"title":"Levothyroxine: absorption matters","body":"Levothyroxine should be taken fasting, preferably in the morning, waiting 30-60 minutes before eating or taking other medications/supplements (especially calcium and iron, which reduce its absorption). Consistent timing improves value stability."}]},{"key":"fibromialgia","label":"Fibromyalgia","emoji":"🌫️","color":"#9B6B8C","definition":"Fibromyalgia is a chronic disease characterized by widespread musculoskeletal pain, present for at least three months, often accompanied by stiffness, unrefreshing sleep, chronic fatigue, and difficulty concentrating (the so-called \"brain fog\"). It mainly affects women, peaking between 40 and 60 years of age.","alarmSymptoms":["Chest pain","Sudden severe weakness on one side of the body","High fever (>38.5°C)","Sudden, intense swelling of a single joint","Significant unexplained weight loss"],"fields":[{"key":"pain_areas","type":"chips","label":"Painful body areas today (WPI)","options":["Arms","Legs","Back","Neck and shoulders","Chest","Abdomen","Head and face"]},{"key":"restful_sleep","type":"select","label":"Restful sleep last night?","options":[{"value":"si","label":"Yes"},{"value":"no","label":"No"}]},{"key":"brain_fog","type":"select","label":"Brain fog today","options":[{"value":"nessuna","label":"None"},{"value":"lieve","label":"Mild"},{"value":"moderata","label":"Moderate"},{"value":"intensa","label":"Intense"}]},{"key":"morning_stiffness_min","type":"number","label":"Morning stiffness (minutes, optional)","unit":"min","placeholder":"e.g. 30"},{"key":"fatigue","type":"slider","label":"Fatigue level","min":0,"max":10},{"key":"triggers","type":"chips","label":"Possible triggers today","options":["Stress","Weather changes","Physical exertion","Poor sleep"]}],"lifestyle":{"helps":["Light, gradual physical activity (stretching, swimming, walking)","Stress management and relaxation techniques","Regular sleep hours","Pacing activities, alternating effort and rest"],"avoid":["Sudden, intense physical exertion","Long periods of total inactivity","Ignoring a marked worsening thinking it's \"just fatigue\""]},"contentCards":[{"title":"It's not \"all in your head\"","body":"Fibromyalgia is a real, recognized condition characterized by heightened sensitivity to pain. It is not imagined, and the pain you feel is real. A clear diagnosis helps you start the most suitable path."},{"title":"Pace and gradual progress","body":"Light, regular physical activity, consistent sleep, and stress management are among the most effective elements. The goal is not intensity but consistency: small steps repeated over time."}]},{"key":"artrite_reumatoide","label":"Rheumatoid Arthritis","emoji":"🦴","color":"#8C7355","definition":"Rheumatoid arthritis is a chronic inflammatory autoimmune disease that causes pain, swelling, stiffness, and progressive loss of joint function. It most often affects the small joints of the hands, wrists, and feet, symmetrically. It differs from osteoarthritis, which is a degenerative process related to joint wear, not autoimmune.","alarmSymptoms":["High fever with a very hot, swollen, and painful joint (possible septic arthritis)","Chest pain or difficulty breathing","Intense eye redness and pain","Sudden numbness or weakness","Sudden, severe swelling of multiple joints with general malaise"],"fields":[{"key":"morning_stiffness_min","type":"number","label":"Morning stiffness (minutes)","unit":"min","placeholder":"e.g. 45"},{"key":"joint_swelling","type":"select","label":"Joint swelling today?","options":[{"value":"si","label":"Yes"},{"value":"no","label":"No"}]},{"key":"affected_joints","type":"chips","label":"Joints involved today","options":["Hands and wrists","Elbows","Shoulders","Knees","Ankles and feet","Cervical spine"]},{"key":"daily_impact","type":"select","label":"Impact on daily activities","options":[{"value":"nessuno","label":"None"},{"value":"lieve","label":"Mild"},{"value":"moderato","label":"Moderate — I reduced activities"},{"value":"severo","label":"Severe — I had to stop"}]}],"lifestyle":{"helps":["Taking therapy regularly, even during symptom-free periods","Low-impact physical activity to maintain joint mobility","Applying heat or cold to aching joints as advised by your doctor","Protecting joints in everyday tasks"],"avoid":["Stopping therapy because you \"feel better\"","Repeated, prolonged joint strain during a flare","Ignoring a single very hot, swollen joint, especially with fever"]},"contentCards":[{"title":"Rheumatoid arthritis and osteoarthritis are not the same","body":"Rheumatoid arthritis is an autoimmune disease: the immune system attacks the joints causing inflammation. Osteoarthritis is instead a degenerative process related to cartilage wear. They have different causes, treatments, and outcomes to clarify with your rheumatologist."},{"title":"Morning stiffness is an important signal","body":"Stiffness on waking, and how long it takes to improve, is an indicator that helps your rheumatologist understand disease activity. Logging the number of minutes each day helps build a useful picture for your visits."}]}]},"mood":[{"value":1,"emoji":"😞"},{"value":2,"emoji":"😕"},{"value":3,"emoji":"😐"},{"value":4,"emoji":"🙂"},{"value":5,"emoji":"😄"}],"noPain":["ipertiroidismo","ipotiroidismo"],"t":{"it":{"nav_diary":"Diario","nav_pathologies":"Le mie patologie","nav_documents":"Referti e documenti","nav_trends":"Andamento","nav_appointments":"Controlli","nav_therapies":"Terapie","nav_contents":"Contenuti","disclaimer":"Questo strumento aiuta a registrare e organizzare i tuoi sintomi. Non fornisce diagnosi né sostituisce il parere di un medico o specialista.","subtitle_home":"Facciamo una panoramica veloce dei tuoi sintomi giornalieri. Ci vorranno giusto 2 minuti.","onboarding_title":"Benvenuta in Traccia","onboarding_question":"Come vuoi che ti chiami l'app?","onboarding_placeholder":"Il tuo nome","onboarding_start":"Inizia","onboarding_loading":"Caricamento...","condition_select_prompt":"Seleziona l'area su cui vuoi registrare i dettagli di oggi (una alla volta).","whats_this":"Cos'è","diary_today":"Diario di oggi","had_today":"Hai avuto oggi:","none_of_these":"Nessuno di questi","alarm_warning":"Hai segnalato un sintomo importante. Contatta tempestivamente il tuo medico. Se il sintomo è intenso, peggiora rapidamente o è associato ad altri sintomi gravi, rivolgiti al pronto soccorso o chiama il 112.","pain":"Dolore","pain_hidden_note":"per questa condizione il dolore non è il sintomo cardine. Vedi i campi specifici sotto.","energy":"Energia","sleep_hours":"Ore di sonno","sleep_placeholder":"es. 7.5","medication_taken":"Farmaci assunti come da prescrizione?","mood_today":"Umore di oggi","details_for":"Dettagli","personal_notes":"Note personali","notes_placeholder":"es. Ho avuto più dolore dopo aver fatto attività fisica.","saving":"Salvataggio...","save_entry":"Salva voce di oggi","saved_success":"✓ Salvato con successo","loading":"Caricamento...","my_pathologies_title":"Le mie patologie","my_pathologies_subtitle":"Panoramica delle condizioni che stai monitorando.","add_pathology":"+ Aggiungi patologia","select_placeholder":"— Seleziona —","other":"Altro","condition_label":"Condizione","diagnosis_date_label":"Data di diagnosi (opzionale)","pathology_name_label":"Nome della patologia","pathology_name_placeholder":"es. Sindrome di Sjögren","save_pathology":"Salva patologia","remove":"Rimuovi","no_pathologies":"Non hai ancora aggiunto nessuna patologia. Clicca \"Aggiungi patologia\" per iniziare.","diagnosed_on":"Diagnosticata il","date_not_specified":"Data non specificata","monitored_data":"Dati che stai monitorando","documents_title":"Referti e documenti","documents_subtitle":"I tuoi documenti medici, in ordine cronologico.","add_document":"+ Aggiungi documento","document_type":"Tipo di documento","document_date":"Data del documento","description_optional":"Descrizione (opzionale)","description_placeholder":"es. Emocromo completo, risonanza pelvica...","linked_pathology":"Patologia collegata (opzionale)","none_option":"— Nessuna —","upload_document":"Carica il documento","take_photo":"📷 Scatta una foto","upload_pdf":"📄 Carica PDF","uploading":"Caricamento...","confirm_upload":"Conferma caricamento","no_documents":"Nessun documento caricato. Aggiungi il primo referto per iniziare.","view_file":"Visualizza file","trends_title":"Andamento","trends_subtitle":"Confronta i tuoi dati nel tempo.","last_7":"Ultimi 7 giorni","last_14":"Ultime 2 settimane","last_30":"Ultimo mese","last_90":"Ultimi 3 mesi","export_report":"📋 Esporta report per il medico","pain_increase_warning":"Hai registrato un aumento del dolore nelle ultime settimane. Potrebbe valere la pena parlarne con il tuo medico anche prima della data programmata. Questa è solo un'osservazione sui tuoi numeri, non una valutazione clinica.","how_are_you_doing":"Come stai andando","comparison_note":"è un calcolo statistico sui tuoi numeri, non una valutazione clinica.","need_more_days":"Servono più giorni di dati per questo periodo","pain_line":"Linea del dolore","trend_energy":"Energia","trend_sleep":"Sonno (ore)","trend_mood":"Umore","trend_for":"Andamento","continuity_title":"Continuità di registrazione","no_entry":"Nessuna registrazione","recent_notes":"Le tue note recenti","lifestyle_title":"Cose da fare e da evitare","most_recent_module":"Modulo più recente","helps":"✓ Può aiutare","avoid_title":"✕ Meglio evitare","lifestyle_disclaimer":"Suggerimenti generali basati su linee guida e letteratura scientifica corrente, non personalizzati sul tuo caso specifico. Non sostituiscono le indicazioni del tuo medico o dietista.","appointments_title":"Controlli","upcoming_checkups":"Prossimi controlli da fare","add_btn":"+ Aggiungi","with_whom":"Con chi","date_label":"Data","save_checkup":"Salva controllo","no_future_checkups":"Nessun controllo futuro programmato.","today":"Oggi","tomorrow":"Domani","in_days":"Tra {n} giorni","past_date_update":"Data passata — aggiornala","past_checkups":"Controlli già fatti","no_past_docs":"Nessun documento passato. Carica i tuoi referti nella sezione \"Referti e documenti\".","open_file":"Apri","prepare_visit":"Cosa preparare per la visita","prep_1":"Esporta/stampa il report dal diario (sezione Andamento)","prep_2":"Prepara l'elenco aggiornato dei farmaci (sezione Terapie)","prep_3":"Annota le domande da fare al medico","prep_4":"Porta eventuali referti/esami recenti","therapies_title":"Terapie","therapies_subtitle":"I tuoi farmaci e promemoria.","add_medication":"+ Aggiungi farmaco","med_time_to_take":"È ora di prendere:","mark_as_taken":"Segna come preso","name_and_dosage":"Nome e dosaggio","name_dosage_placeholder":"es. Levotiroxina 50mcg","extra_dosage":"Dosaggio aggiuntivo (opzionale)","extra_dosage_placeholder":"es. 1 compressa","time_label":"Orario","frequency_label":"Frequenza","save_medication":"Salva farmaco","no_medications":"Nessun farmaco aggiunto. Aggiungi la tua terapia per ricevere promemoria.","reminder_note":"I promemoria in-app funzionano quando l'app è aperta. Le notifiche push di sistema richiedono autorizzazione del dispositivo.","contents_title":"Contenuti","contents_subtitle":"Informazioni educative validate, non diagnostiche.","all_filter":"Tutti","year_only":"Conosco solo l'anno","diagnosed_in_year":"Diagnosticata nel","iss_link":"Approfondisci su ISSalute","logout":"Esci","auth_privacy_note":"I tuoi dati sanitari sono privati e visibili solo a te. Traccia non fornisce diagnosi.","auth_login_title":"Bentornata in Traccia","auth_login_subtitle":"Accedi per ritrovare il tuo diario su tutti i tuoi dispositivi.","auth_register_title":"Benvenuta in Traccia","auth_register_subtitle":"Crea il tuo account: il diario ti seguirà su ogni dispositivo.","auth_email":"Email","auth_email_placeholder":"es. nome@email.it","auth_password":"Password","auth_password_placeholder":"La tua password","auth_password_new":"Nuova password","auth_password_confirm":"Conferma password","auth_name":"Come vuoi che ti chiami l'app?","auth_name_placeholder":"Il tuo nome","auth_sign_in":"Accedi","auth_sign_up":"Crea account","auth_no_account":"Non hai ancora un account?","auth_has_account":"Hai già un account?","auth_forgot":"Password dimenticata?","auth_forgot_title":"Reimposta la password","auth_forgot_subtitle":"Inserisci la tua email: ti invieremo un link per scegliere una nuova password.","auth_forgot_cta":"Invia il link","auth_forgot_sent":"Se esiste un account con questa email, tra poco riceverai un link per reimpostare la password. Controlla anche lo spam.","auth_reset_title":"Scegli una nuova password","auth_reset_subtitle":"Da ora userai questa password per accedere.","auth_reset_cta":"Salva la password","auth_reset_done":"Password aggiornata. Ora puoi accedere.","auth_back_to_login":"← Torna all'accesso","auth_check_email_title":"Controlla la tua email","auth_check_email_body":"Ti abbiamo inviato un link per confermare il tuo indirizzo. Aprilo per attivare il tuo account.","auth_err_generic":"Qualcosa non ha funzionato. Riprova tra un momento.","auth_err_invalid":"Email o password non corretti.","auth_err_email_required":"Inserisci la tua email.","auth_err_email_invalid":"Questa email non sembra valida.","auth_err_password_short":"La password deve avere almeno 8 caratteri.","auth_err_password_mismatch":"Le due password non coincidono.","auth_err_name_required":"Inserisci il tuo nome.","auth_err_email_taken":"Esiste già un account con questa email.","auth_err_not_confirmed":"Devi prima confermare la tua email. Controlla la posta.","auth_err_rate_limit":"Troppi tentativi. Attendi qualche minuto e riprova.","sync_offline_title":"Modalità locale","sync_offline_body":"Nessun account configurato: i dati restano su questo dispositivo e non vengono sincronizzati.","continuity_no_pain":"Dolore non registrato","continuity_alarm_legend":"Sintomo d'allarme","garden_title":"Il tuo giardino","garden_day":"giorno","garden_days":"giorni","garden_msg_0":"Pianta il primo seme oggi.","garden_msg_low":"Il tuo giardino inizia a crescere. 🌱","garden_msg_mid":"Stai coltivando una bella abitudine. 🌿","garden_msg_high":"Un giardino rigoglioso, giorno dopo giorno. 🌳","garden_tip_0":"Registra oggi per far germogliare il primo seme.","garden_tip":"Ogni registrazione fa crescere il tuo giardino.","ai_summary_title":"Sintesi della settimana","ai_summary_subtitle":"Un riepilogo dei tuoi dati, scritto dall'IA","ai_summary_cta":"Genera sintesi","ai_summary_loading":"L'IA sta rileggendo la tua settimana…","ai_summary_regenerate":"Aggiorna","ai_summary_empty":"Registra qualche voce di diario per ottenere una sintesi della settimana.","ai_summary_disclaimer":"Sintesi generata automaticamente dai tuoi dati. Non è una diagnosi né un parere clinico.","onboarding_conditions_title":"Le tue condizioni","onboarding_conditions_intro":"Seleziona le patologie che segui. Ti aiuteremo a tenere traccia di dolore, energia, sonno e umore per ognuna.","onboarding_conditions_skip":"Le aggiungerai dopo se vorrai","onboarding_theme_title":"Scegli il tuo stile","onboarding_theme_subtitle":"Puoi cambiarlo quando vuoi dall'intestazione.","onboarding_light":"Chiaro","onboarding_dark":"Scuro","onboarding_continue":"Continua"},"en":{"nav_diary":"Diary","nav_pathologies":"My Conditions","nav_documents":"Reports & Documents","nav_trends":"Trends","nav_appointments":"Check-ups","nav_therapies":"Therapies","nav_contents":"Resources","disclaimer":"This tool helps you record and organize your symptoms. It does not provide diagnoses or replace the advice of a doctor or specialist.","subtitle_home":"Let's take a quick look at your daily symptoms. It'll only take 2 minutes.","onboarding_title":"Welcome to Traccia","onboarding_question":"What should the app call you?","onboarding_placeholder":"Your name","onboarding_start":"Get started","onboarding_loading":"Loading...","condition_select_prompt":"Select the area you'd like to log details for today (one at a time).","whats_this":"What is","diary_today":"Today's diary","had_today":"Did you experience today:","none_of_these":"None of these","alarm_warning":"You reported an important symptom. Contact your doctor promptly. If the symptom is intense, worsening quickly, or associated with other severe symptoms, go to the emergency room or call emergency services.","pain":"Pain","pain_hidden_note":"for this condition, pain isn't the key symptom. See the specific fields below.","energy":"Energy","sleep_hours":"Hours of sleep","sleep_placeholder":"e.g. 7.5","medication_taken":"Medication taken as prescribed?","mood_today":"Today's mood","details_for":"Details","personal_notes":"Personal notes","notes_placeholder":"e.g. I had more pain after exercising.","saving":"Saving...","save_entry":"Save today's entry","saved_success":"✓ Saved successfully","loading":"Loading...","my_pathologies_title":"My Conditions","my_pathologies_subtitle":"Overview of the conditions you're tracking.","add_pathology":"+ Add condition","select_placeholder":"— Select —","other":"Other","condition_label":"Condition","diagnosis_date_label":"Diagnosis date (optional)","pathology_name_label":"Condition name","pathology_name_placeholder":"e.g. Sjögren's syndrome","save_pathology":"Save condition","remove":"Remove","no_pathologies":"No conditions added yet. Click \"Add condition\" to get started.","diagnosed_on":"Diagnosed on","date_not_specified":"Date not specified","monitored_data":"Data you're tracking","documents_title":"Reports & Documents","documents_subtitle":"Your medical documents, in chronological order.","add_document":"+ Add document","document_type":"Document type","document_date":"Document date","description_optional":"Description (optional)","description_placeholder":"e.g. Complete blood count, pelvic MRI...","linked_pathology":"Linked condition (optional)","none_option":"— None —","upload_document":"Upload document","take_photo":"📷 Take a photo","upload_pdf":"📄 Upload PDF","uploading":"Uploading...","confirm_upload":"Confirm upload","no_documents":"No documents uploaded. Add your first report to get started.","view_file":"View file","trends_title":"Trends","trends_subtitle":"Compare your data over time.","last_7":"Last 7 days","last_14":"Last 2 weeks","last_30":"Last month","last_90":"Last 3 months","export_report":"📋 Export report for your doctor","pain_increase_warning":"You logged an increase in pain over the past weeks. It might be worth talking to your doctor even before your scheduled date. This is just an observation on your numbers, not a clinical assessment.","how_are_you_doing":"How are you doing","comparison_note":"is a statistical calculation on your numbers, not a clinical assessment.","need_more_days":"More days of data are needed for this period","pain_line":"Pain trend","trend_energy":"Energy","trend_sleep":"Sleep (hours)","trend_mood":"Mood","trend_for":"Trend for","continuity_title":"Logging continuity","no_entry":"No entry","recent_notes":"Your recent notes","lifestyle_title":"Things that help and things to avoid","most_recent_module":"Most recent module","helps":"✓ May help","avoid_title":"✕ Better to avoid","lifestyle_disclaimer":"General suggestions based on current guidelines and scientific literature, not personalized to your specific case. They don't replace your doctor's or dietitian's advice.","appointments_title":"Check-ups","upcoming_checkups":"Upcoming check-ups","add_btn":"+ Add","with_whom":"With whom","date_label":"Date","save_checkup":"Save check-up","no_future_checkups":"No upcoming check-ups scheduled.","today":"Today","tomorrow":"Tomorrow","in_days":"In {n} days","past_date_update":"Past date — update it","past_checkups":"Past check-ups","no_past_docs":"No past documents. Upload your reports in the \"Reports & Documents\" section.","open_file":"Open","prepare_visit":"What to prepare for your visit","prep_1":"Export/print the report from the diary (Trends section)","prep_2":"Prepare the updated medication list (Therapies section)","prep_3":"Write down questions for your doctor","prep_4":"Bring any recent reports/exams","therapies_title":"Therapies","therapies_subtitle":"Your medications and reminders.","add_medication":"+ Add medication","med_time_to_take":"It's time to take:","mark_as_taken":"Mark as taken","name_and_dosage":"Name and dosage","name_dosage_placeholder":"e.g. Levothyroxine 50mcg","extra_dosage":"Additional dosage (optional)","extra_dosage_placeholder":"e.g. 1 tablet","time_label":"Time","frequency_label":"Frequency","save_medication":"Save medication","no_medications":"No medications added. Add your therapy to receive reminders.","reminder_note":"In-app reminders work while the app is open. System push notifications require device authorization.","contents_title":"Resources","contents_subtitle":"Validated educational information, not diagnostic.","all_filter":"All","year_only":"I only know the year","diagnosed_in_year":"Diagnosed in","iss_link":"Read more on ISSalute","logout":"Log out","auth_privacy_note":"Your health data is private and visible only to you. Traccia does not provide diagnoses.","auth_login_title":"Welcome back to Traccia","auth_login_subtitle":"Sign in to pick up your diary on any of your devices.","auth_register_title":"Welcome to Traccia","auth_register_subtitle":"Create your account and your diary follows you to every device.","auth_email":"Email","auth_email_placeholder":"e.g. name@email.com","auth_password":"Password","auth_password_placeholder":"Your password","auth_password_new":"New password","auth_password_confirm":"Confirm password","auth_name":"What should the app call you?","auth_name_placeholder":"Your name","auth_sign_in":"Sign in","auth_sign_up":"Create account","auth_no_account":"Don't have an account yet?","auth_has_account":"Already have an account?","auth_forgot":"Forgot your password?","auth_forgot_title":"Reset your password","auth_forgot_subtitle":"Enter your email and we'll send you a link to choose a new password.","auth_forgot_cta":"Send the link","auth_forgot_sent":"If an account exists for this email, a reset link is on its way. Check your spam folder too.","auth_reset_title":"Choose a new password","auth_reset_subtitle":"You'll use this password to sign in from now on.","auth_reset_cta":"Save password","auth_reset_done":"Password updated. You can sign in now.","auth_back_to_login":"← Back to sign in","auth_check_email_title":"Check your email","auth_check_email_body":"We've sent you a link to confirm your address. Open it to activate your account.","auth_err_generic":"Something went wrong. Please try again in a moment.","auth_err_invalid":"Incorrect email or password.","auth_err_email_required":"Please enter your email.","auth_err_email_invalid":"That email doesn't look valid.","auth_err_password_short":"Your password must be at least 8 characters.","auth_err_password_mismatch":"The two passwords do not match.","auth_err_name_required":"Please enter your name.","auth_err_email_taken":"An account with this email already exists.","auth_err_not_confirmed":"Please confirm your email first. Check your inbox.","auth_err_rate_limit":"Too many attempts. Wait a few minutes and try again.","sync_offline_title":"Local mode","sync_offline_body":"No account configured: data stays on this device and is not synced.","continuity_no_pain":"Pain not logged","continuity_alarm_legend":"Alarm symptom","garden_title":"Your garden","garden_day":"day","garden_days":"days","garden_msg_0":"Plant your first seed today.","garden_msg_low":"Your garden is starting to grow. 🌱","garden_msg_mid":"You're growing a beautiful habit. 🌿","garden_msg_high":"A lush garden, day after day. 🌳","garden_tip_0":"Log today to sprout your first seed.","garden_tip":"Every entry grows your garden.","ai_summary_title":"Weekly synthesis","ai_summary_subtitle":"A recap of your data, written by AI","ai_summary_cta":"Generate synthesis","ai_summary_loading":"The AI is reviewing your week…","ai_summary_regenerate":"Refresh","ai_summary_empty":"Log a few diary entries to get a weekly synthesis.","ai_summary_disclaimer":"Synthesis generated automatically from your data. It is not a diagnosis or clinical advice.","onboarding_conditions_title":"Your conditions","onboarding_conditions_intro":"Select the conditions you track. We'll help you log pain, energy, sleep and mood for each.","onboarding_conditions_skip":"You can add them later if you like","onboarding_theme_title":"Choose your style","onboarding_theme_subtitle":"You can change it anytime from the header.","onboarding_light":"Light","onboarding_dark":"Dark","onboarding_continue":"Continue"}}};
+</script>
+
+<script type="text/babel" data-type="module">
+/* ==========================================================================
+   TRACCIA — PROTOTIPO / PROTOTYPE
+   ==========================================================================
+
+   The whole app in one file, written to be readable and edited by hand or by
+   Claude. Everything below is plain React — no build step, no imports.
+
+   HOW TO CHANGE THINGS
+   --------------------
+   · Text of the interface ....... the T object, further down
+   · Colours, cards, buttons ..... the <style> block at the top of this file
+   · A screen ..................... find the function named after it
+                                     (DiaryScreen, TrendsScreen, ProfileScreen…)
+   · The menu .................... the TABS array
+   · Sample data ................. makeSampleEntries()
+
+   This is a PROTOTYPE for deciding how things should look and behave. It is
+   not the real product: nothing is saved anywhere, and there are no accounts.
+   ========================================================================== */
+
+const { useState, useMemo, useEffect, useRef } = React
+
+/* --------------------------------------------------------------------------
+   Data lifted from the real app: the nine conditions and every interface
+   string, in Italian and English. Injected just above as TRACCIA_DATA.
+   -------------------------------------------------------------------------- */
+const DATA = TRACCIA_DATA
+const T = DATA.t
+const MOOD = DATA.mood
+const NO_PAIN = DATA.noPain
+
+const t = (key, lang) => (T[lang] && T[lang][key]) || T.it[key] || key
+const conditionsFor = (lang) => DATA.conditions[lang] || DATA.conditions.it
+const findCondition = (key, lang) => conditionsFor(lang).find((c) => c.key === key) || null
+
+/* --------------------------------------------------------------------------
+   Dates
+   -------------------------------------------------------------------------- */
+const MONTHS = {
+  it: ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'],
+  en: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+}
+const WEEKDAYS = {
+  it: ['domenica','lunedì','martedì','mercoledì','giovedì','venerdì','sabato'],
+  en: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+}
+
+const todayISO = () => {
+  const n = new Date()
+  return new Date(n.getTime() - n.getTimezoneOffset() * 60000).toISOString().split('T')[0]
+}
+const minusDays = (iso, days) => {
+  const d = new Date(iso)
+  d.setDate(d.getDate() - days)
+  return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().split('T')[0]
+}
+const longDate = (date, lang) => {
+  const d = typeof date === 'string' ? new Date(date) : date
+  const wd = WEEKDAYS[lang][d.getDay()], mo = MONTHS[lang][d.getMonth()]
+  return lang === 'en'
+    ? `${wd}, ${mo} ${d.getDate()} ${d.getFullYear()}`
+    : `${wd} ${d.getDate()} ${mo} ${d.getFullYear()}`
+}
+const shortDate = (date, lang) => {
+  const d = typeof date === 'string' ? new Date(date) : date
+  return lang === 'en'
+    ? `${MONTHS[lang][d.getMonth()]} ${d.getDate()}`
+    : `${d.getDate()} ${MONTHS[lang][d.getMonth()]}`
+}
+const greeting = (lang) => {
+  const h = new Date().getHours()
+  if (lang === 'en') return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'
+  return h < 12 ? 'Buongiorno' : h < 18 ? 'Buon pomeriggio' : 'Buonasera'
+}
+
+/* --------------------------------------------------------------------------
+   Sample data — so the charts and the streak have something to show.
+   Change the numbers here to see how the screens react.
+   -------------------------------------------------------------------------- */
+function makeSampleEntries() {
+  const modules = ['emicrania', 'endometriosi']
+  const rows = []
+  for (let i = 13; i >= 0; i--) {
+    if (i === 4 || i === 9) continue          // a couple of missed days
+    const pain = Math.max(0, Math.min(10, Math.round(4 + Math.sin(i / 2) * 3)))
+    rows.push({
+      id: 'sample-' + i,
+      module: modules[i % modules.length],
+      entry_date: minusDays(todayISO(), i),
+      pain,
+      energy: Math.max(0, Math.min(10, 9 - pain + (i % 3))),
+      sleep_hours: 6 + (i % 4) * 0.5,
+      mood: Math.max(1, Math.min(5, 5 - Math.round(pain / 3))),
+      notes: i === 2 ? 'Giornata pesante, ho ridotto le attività.' : i === 7 ? 'Meglio dopo una camminata.' : null,
+    })
+  }
+  return rows.reverse()
+}
+
+/* ==========================================================================
+   SMALL PIECES
+   ========================================================================== */
+
+function Icon({ name, className = 'w-4 h-4' }) {
+  const paths = {
+    book: 'M4 19.5A2.5 2.5 0 0 1 6.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z',
+    stethoscope: 'M11 2v2M5 2v2M5 4v6a6 6 0 0 0 12 0V4M17 18a3 3 0 1 0 0-6 3 3 0 0 0 0 6z',
+    file: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6',
+    trend: 'M22 7l-8.5 8.5-5-5L2 17',
+    calendar: 'M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z',
+    pill: 'M10.5 20.5a5 5 0 0 1-7-7l7-7a5 5 0 0 1 7 7zM8.5 8.5l7 7',
+    sparkles: 'M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z',
+    life: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8z',
+    user: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z',
+    sun: 'M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4',
+    moon: 'M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z',
+    chevronLeft: 'M15 18l-6-6 6-6',
+    chevronRight: 'M9 18l6-6-6-6',
+    check: 'M20 6L9 17l-5-5',
+    plus: 'M12 5v14M5 12h14',
+    trash: 'M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6',
+    logout: 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9',
+    lock: 'M5 11h14v11H5zM8 11V7a4 4 0 0 1 8 0v4',
+    mail: 'M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM22 6l-10 7L2 6',
+    shield: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z',
+    info: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 16v-4M12 8h.01',
+    warn: 'M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0zM12 9v4M12 17h.01',
+    download: 'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3',
+  }
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d={paths[name] || paths.info} />
+    </svg>
+  )
+}
+
+function Card({ children, className = '', large = false }) {
+  return <div className={`${large ? 'card-float-lg' : 'card-float'} ${className}`}>{children}</div>
+}
+
+function Field({ label, children }) {
+  return (
+    <div>
+      <label className="block text-[13px] font-500 text-ink/70 mb-1.5">{label}</label>
+      {children}
+    </div>
+  )
+}
+
+function Slider({ label, value, onChange, max = 10, color = '#4FAF82' }) {
+  const pct = (value / max) * 100
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-2.5">
+        <label className="text-[13px] font-500 text-ink/70">{label}</label>
+        <span className="font-mono-data text-[15px] font-600 text-ink">
+          {value}<span className="text-ink/35 font-400">/{max}</span>
+        </span>
+      </div>
+      <input type="range" min="0" max={max} value={value} className="traccia-slider w-full"
+             onChange={(e) => onChange(parseInt(e.target.value))}
+             style={{ background: `linear-gradient(to right, ${color} ${pct}%, #EBEEEC ${pct}%)` }} />
+    </div>
+  )
+}
+
+/** A plain SVG line chart — no chart library, so it stays easy to tweak. */
+function LineChart({ points, color = '#4FAF82', max = 10, height = 160 }) {
+  const { lang } = useApp()
+  const valid = points.filter((p) => p.value != null)
+  if (valid.length < 2) {
+    return <p className="text-[13px] text-ink/40 italic py-8 text-center">{t('need_more_days', lang)}</p>
+  }
+  const W = 600, H = height, padX = 24, padY = 16
+  const stepX = (W - padX * 2) / (valid.length - 1)
+  const coords = valid.map((p, i) => ({
+    x: padX + i * stepX,
+    y: padY + (1 - p.value / max) * (H - padY * 2),
+    ...p,
+  }))
+  const line = coords.map((c, i) => `${i ? 'L' : 'M'} ${c.x.toFixed(1)} ${c.y.toFixed(1)}`).join(' ')
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height }}>
+      {[0, 0.5, 1].map((f) => (
+        <line key={f} x1={padX} x2={W - padX}
+              y1={padY + f * (H - padY * 2)} y2={padY + f * (H - padY * 2)}
+              stroke="currentColor" className="text-ink/10" strokeDasharray="3 3" />
+      ))}
+      <path d={line} fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      {coords.map((c, i) => (
+        <circle key={i} cx={c.x} cy={c.y} r="4" fill={color}>
+          <title>{c.label}: {c.value}</title>
+        </circle>
+      ))}
+    </svg>
+  )
+}
+
+/* ==========================================================================
+   APP STATE
+   Everything the prototype knows, in one place. No backend, no saving.
+   ========================================================================== */
+
+const AppContext = React.createContext(null)
+const useApp = () => React.useContext(AppContext)
+
+/** The menu. Add or remove a screen here and in renderScreen() below. */
+const TABS = [
+  { id: 'diary',       icon: 'book',        label: (l) => t('nav_diary', l) },
+  { id: 'conditions',  icon: 'stethoscope', label: (l) => t('nav_pathologies', l) },
+  { id: 'documents',   icon: 'file',        label: (l) => t('nav_documents', l) },
+  { id: 'trends',      icon: 'trend',       label: (l) => t('nav_trends', l) },
+  { id: 'checkups',    icon: 'calendar',    label: (l) => t('nav_appointments', l) },
+  { id: 'therapies',   icon: 'pill',        label: (l) => t('nav_therapies', l) },
+  { id: 'resources',   icon: 'sparkles',    label: (l) => t('nav_contents', l) },
+  { id: 'profile',     icon: 'user',        label: (l) => (l === 'en' ? 'Profile' : 'Profilo') },
+  { id: 'guide',       icon: 'life',        label: (l) => (l === 'en' ? 'Guide' : 'Guida') },
+]
+
+function App() {
+  const [lang, setLang] = useState('it')
+  const [dark, setDark] = useState(false)
+  const [screen, setScreen] = useState('diary')
+  const [name, setName] = useState('Elena')
+  const [entries, setEntries] = useState(makeSampleEntries)
+  const [conditions, setConditions] = useState(['emicrania', 'endometriosi'])
+  const [therapies, setTherapies] = useState([
+    { id: 1, name: 'Levotiroxina 50mcg', dosage: '1 compressa', time: '08:00', frequency: 'ogni_giorno' },
+  ])
+  const [checkups, setCheckups] = useState([
+    { id: 1, specialist: 'neurologo', date: minusDays(todayISO(), -21) },
+  ])
+  const [documents, setDocuments] = useState([
+    { id: 1, type: 'analisi_sangue', date: minusDays(todayISO(), 30), description: 'Emocromo completo' },
+  ])
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', dark)
+  }, [dark])
+
+  const value = {
+    lang, setLang, dark, setDark, screen, setScreen, name, setName,
+    entries, setEntries, conditions, setConditions,
+    therapies, setTherapies, checkups, setCheckups, documents, setDocuments,
+  }
+
+  return (
+    <AppContext.Provider value={value}>
+      <div className="min-h-screen bg-canvas">
+        <Navbar />
+        <LocalBanner />
+        <Disclaimer />
+        <main className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+          {renderScreen(screen)}
+        </main>
+      </div>
+    </AppContext.Provider>
+  )
+}
+
+function renderScreen(screen) {
+  switch (screen) {
+    case 'diary':      return <DiaryScreen />
+    case 'conditions': return <ConditionsScreen />
+    case 'documents':  return <DocumentsScreen />
+    case 'trends':     return <TrendsScreen />
+    case 'checkups':   return <CheckupsScreen />
+    case 'therapies':  return <TherapiesScreen />
+    case 'resources':  return <ResourcesScreen />
+    case 'profile':    return <ProfileScreen />
+    case 'guide':      return <GuideScreen />
+    default:           return <DiaryScreen />
+  }
+}
+
+/* ==========================================================================
+   HEADER
+   ========================================================================== */
+
+function Navbar() {
+  const { lang, setLang, dark, setDark, screen, setScreen } = useApp()
+  const navRef = useRef(null)
+  const [edges, setEdges] = useState({ overflows: false, atStart: true, atEnd: true })
+
+  const measure = () => {
+    const el = navRef.current
+    if (!el) return
+    const max = el.scrollWidth - el.clientWidth
+    setEdges({ overflows: max > 1, atStart: el.scrollLeft <= 1, atEnd: el.scrollLeft >= max - 1 })
+  }
+
+  useEffect(() => {
+    const el = navRef.current
+    if (!el) return
+    const raf = requestAnimationFrame(measure)
+    el.addEventListener('scroll', measure, { passive: true })
+    window.addEventListener('resize', measure)
+    return () => {
+      cancelAnimationFrame(raf)
+      el.removeEventListener('scroll', measure)
+      window.removeEventListener('resize', measure)
+    }
+  }, [lang])
+
+  const scrollBy = (dir) => {
+    const el = navRef.current
+    if (!el) return
+    el.scrollBy({ left: dir * Math.max(el.clientWidth * 0.7, 160), behavior: 'smooth' })
+  }
+
+  const mask = edges.overflows
+    ? `linear-gradient(to right, ${edges.atStart ? 'black 0' : 'transparent 0, black 20px'}, ${
+        edges.atEnd ? 'black 100%' : 'black calc(100% - 20px), transparent 100%'})`
+    : undefined
+
+  return (
+    <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-line">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6">
+
+        <div className="flex items-center justify-between h-16">
+          <div className="flex items-center gap-2">
+            <span className="text-[22px] leading-none">🌿</span>
+            <span className="font-display text-[20px] font-600 tracking-tight text-ink">Traccia</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button onClick={() => setDark(!dark)}
+                    title={dark ? 'Tema chiaro' : 'Tema scuro'}
+                    className="flex items-center px-3 py-1.5 rounded-full border border-line bg-background text-ink-soft hover:border-brand/40 transition-colors">
+              <Icon name={dark ? 'sun' : 'moon'} className="w-3.5 h-3.5" />
+            </button>
+            <button onClick={() => setLang(lang === 'it' ? 'en' : 'it')}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-line bg-background text-xs font-500 text-ink-soft hover:border-brand/40 transition-colors">
+              <span className="text-[13px] leading-none">{lang === 'it' ? '🇮🇹' : '🇬🇧'}</span>
+              <span>{lang.toUpperCase()}</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1 pb-2.5">
+          {edges.overflows && (
+            <button onClick={() => scrollBy(-1)} disabled={edges.atStart}
+                    className="shrink-0 flex items-center justify-center w-7 h-7 rounded-full border border-line bg-background text-ink-soft disabled:opacity-25 hover:border-brand/40 transition-all">
+              <Icon name="chevronLeft" className="w-3.5 h-3.5" />
+            </button>
+          )}
+
+          <nav ref={navRef} style={{ maskImage: mask, WebkitMaskImage: mask }}
+               className="flex items-center gap-1 overflow-x-auto no-scrollbar flex-1 min-w-0">
+            {TABS.map((tab) => (
+              <button key={tab.id} onClick={() => setScreen(tab.id)}
+                      className={`nav-tab shrink-0 ${screen === tab.id ? 'active' : ''}`}>
+                <Icon name={tab.icon} className="w-[15px] h-[15px]" />
+                {tab.label(lang)}
+              </button>
+            ))}
+          </nav>
+
+          {edges.overflows && (
+            <button onClick={() => scrollBy(1)} disabled={edges.atEnd}
+                    className="shrink-0 flex items-center justify-center w-7 h-7 rounded-full border border-line bg-background text-ink-soft disabled:opacity-25 hover:border-brand/40 transition-all">
+              <Icon name="chevronRight" className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+      </div>
+    </header>
+  )
+}
+
+function LocalBanner() {
+  const { lang } = useApp()
+  return (
+    <div className="amber-soft border-b border-[#B8863B]/20">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-2 flex items-start gap-2">
+        <Icon name="warn" className="w-[15px] h-[15px] text-[#B8863B] shrink-0 mt-0.5" />
+        <p className="text-[11.5px] leading-relaxed text-[#7A5623]">
+          <span className="font-600">{lang === 'en' ? 'Prototype' : 'Prototipo'}</span>{' '}
+          {lang === 'en'
+            ? 'for deciding how things should look. Nothing here is saved.'
+            : 'per decidere come devono apparire le cose. Niente viene salvato.'}
+        </p>
+      </div>
+    </div>
+  )
+}
+
+function Disclaimer() {
+  const { lang } = useApp()
+  return (
+    <div className="bg-brand-softer border-b border-line/70">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-2 flex items-start gap-2">
+        <Icon name="info" className="w-[15px] h-[15px] text-brand-dark shrink-0 mt-0.5" />
+        <p className="text-[11.5px] leading-relaxed text-ink/55">{t('disclaimer', lang)}</p>
+      </div>
+    </div>
+  )
+}
+
+/* ==========================================================================
+   SCREEN — DIARY
+   ========================================================================== */
+
+function DiaryScreen() {
+  const { lang, name, entries, setEntries } = useApp()
+  const [active, setActive] = useState(null)
+  const [pain, setPain] = useState(3)
+  const [energy, setEnergy] = useState(5)
+  const [sleep, setSleep] = useState('')
+  const [mood, setMood] = useState(3)
+  const [notes, setNotes] = useState('')
+  const [alarms, setAlarms] = useState([])
+  const [saved, setSaved] = useState(false)
+
+  const condition = active ? findCondition(active, lang) : null
+  const hidesPain = active && NO_PAIN.includes(active)
+  const noneLabel = t('none_of_these', lang)
+
+  const streak = useMemo(() => {
+    const dates = new Set(entries.map((e) => e.entry_date))
+    let cursor = todayISO()
+    if (!dates.has(cursor)) { cursor = minusDays(cursor, 1); if (!dates.has(cursor)) return 0 }
+    let n = 0
+    while (dates.has(cursor)) { n++; cursor = minusDays(cursor, 1) }
+    return n
+  }, [entries])
+
+  const save = () => {
+    setEntries([
+      { id: Date.now(), module: active || 'base', entry_date: todayISO(),
+        pain: hidesPain ? null : pain, energy, sleep_hours: sleep ? parseFloat(sleep) : null,
+        mood, notes: notes || null },
+      ...entries.filter((e) => !(e.entry_date === todayISO() && e.module === (active || 'base'))),
+    ])
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2500)
+  }
+
+  return (
+    <div>
+      <GreetingCard streak={streak} />
+
+      <Card className="p-5 sm:p-6 mb-5">
+        <p className="text-[13px] text-ink/55 mb-3.5 leading-relaxed">{t('condition_select_prompt', lang)}</p>
+        <div className="flex flex-wrap gap-2">
+          {conditionsFor(lang).map((c) => {
+            const on = active === c.key
+            return (
+              <button key={c.key} onClick={() => { setActive(on ? null : c.key); setAlarms([]) }}
+                      className="cond-pill"
+                      style={on ? { borderColor: c.color, backgroundColor: c.color + '14', color: c.color, fontWeight: 600 } : undefined}>
+                <span className="text-[16px] leading-none">{c.emoji}</span>{c.label}
+              </button>
+            )
+          })}
+        </div>
+      </Card>
+
+      {condition && (
+        <div className="rounded-[20px] border p-5 sm:p-6 mb-5"
+             style={{ borderColor: condition.color + '30', backgroundColor: condition.color + '08' }}>
+          <div className="flex items-center gap-2.5 mb-2">
+            <span className="text-[22px]">{condition.emoji}</span>
+            <h2 className="font-display text-[19px] font-600 text-ink">
+              {t('whats_this', lang)} {condition.label}
+            </h2>
+          </div>
+          <p className="text-[13.5px] leading-relaxed text-ink-soft">{condition.definition}</p>
+        </div>
+      )}
+
+      <Card large className="p-5 sm:p-7">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="font-display text-[20px] font-600 text-ink">{t('diary_today', lang)}</h2>
+          <Icon name="sparkles" className="w-4 h-4 text-brand/60" />
+        </div>
+
+        {condition && (
+          <div className="mb-6 pb-6 border-b border-line-soft">
+            <p className="text-[13px] font-600 text-ink mb-3">{t('had_today', lang)}</p>
+            <div className="flex flex-wrap gap-2">
+              {[noneLabel, ...condition.alarmSymptoms].map((symptom) => {
+                const on = alarms.includes(symptom)
+                const style = symptom === noneLabel
+                  ? { backgroundColor: '#4FAF82', borderColor: '#4FAF82', color: '#fff' }
+                  : { backgroundColor: '#C56B6B', borderColor: '#C56B6B', color: '#fff' }
+                return (
+                  <button key={symptom} className="toggle-chip" style={on ? style : undefined}
+                          onClick={() => setAlarms(
+                            symptom === noneLabel ? [noneLabel]
+                              : on ? alarms.filter((a) => a !== symptom)
+                                   : [...alarms.filter((a) => a !== noneLabel), symptom])}>
+                    {symptom}
+                  </button>
+                )
+              })}
+            </div>
+
+            {alarms.some((a) => a !== noneLabel) && (
+              <div className="mt-4 rounded-2xl p-4 flex items-start gap-2.5 warn-soft" style={{ border: '1px solid #C56B6B30' }}>
+                <Icon name="warn" className="w-[18px] h-[18px] text-[#C56B6B] shrink-0 mt-0.5" />
+                <p className="text-[13px] text-[#8A3A45] leading-relaxed font-500">{t('alarm_warning', lang)}</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="grid sm:grid-cols-2 gap-x-8 gap-y-6">
+          {hidesPain ? (
+            <div className="card-inner p-4 sm:col-span-2">
+              <p className="text-[13px] text-ink-soft leading-relaxed">
+                <span className="font-600 text-brand-dark">{t('pain', lang)}:</span> {t('pain_hidden_note', lang)}
+              </p>
+            </div>
+          ) : (
+            <Slider label={t('pain', lang)} value={pain} onChange={setPain} />
+          )}
+          <Slider label={t('energy', lang)} value={energy} onChange={setEnergy} />
+
+          <Field label={t('sleep_hours', lang)}>
+            <input className="input-float font-mono-data" placeholder={t('sleep_placeholder', lang)}
+                   value={sleep} onChange={(e) => setSleep(e.target.value)} />
+          </Field>
+
+          <Field label={t('medication_taken', lang)}>
+            <select className="input-float" defaultValue="">
+              <option value="">—</option>
+              <option>{lang === 'en' ? 'Yes' : 'Sì'}</option>
+              <option>{lang === 'en' ? "I'll take it later" : 'Lo prenderò più tardi'}</option>
+              <option>No</option>
+            </select>
+          </Field>
+        </div>
+
+        <div className="mt-6">
+          <label className="block text-[13px] font-500 text-ink/70 mb-2.5">{t('mood_today', lang)}</label>
+          <div className="flex gap-2.5">
+            {MOOD.map((m) => {
+              const on = mood === m.value
+              return (
+                <button key={m.value} onClick={() => setMood(m.value)}
+                        className="flex-1 flex items-center justify-center py-3 rounded-2xl border-[1.5px] transition-colors"
+                        style={on ? { borderColor: '#4FAF82', backgroundColor: '#E8F5EE', transform: 'scale(1.04)' }
+                                  : { borderColor: '#EBEEEC', backgroundColor: 'hsl(var(--card))' }}>
+                  <span className="text-[24px] leading-none">{m.emoji}</span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {condition && condition.fields.length > 0 && (
+          <div className="mt-6 pt-6 border-t border-line-soft">
+            <h3 className="font-display text-[17px] font-600 text-ink mb-4 flex items-center gap-2">
+              <span className="text-[18px]">{condition.emoji}</span> {t('details_for', lang)} {condition.label}
+            </h3>
+            <ModuleFields fields={condition.fields} />
+          </div>
+        )}
+
+        <div className="mt-6">
+          <label className="block text-[13px] font-500 text-ink/70 mb-1.5">{t('personal_notes', lang)}</label>
+          <textarea rows="3" className="input-float !h-auto py-3.5 leading-relaxed resize-none"
+                    placeholder={t('notes_placeholder', lang)}
+                    value={notes} onChange={(e) => setNotes(e.target.value.slice(0, 500))} />
+          <div className="text-right mt-1.5">
+            <span className="font-mono-data text-[11px] text-ink/35">{notes.length}/500</span>
+          </div>
+        </div>
+
+        <div className="mt-6 flex items-center gap-3 flex-wrap">
+          <button className="btn-primary" onClick={save}>
+            <Icon name="check" className="w-4 h-4" />{t('save_entry', lang)}
+          </button>
+          {saved && (
+            <span className="text-[13px] font-500 text-brand-dark flex items-center gap-1.5">
+              <Icon name="check" className="w-4 h-4" /> {t('saved_success', lang)}
+            </span>
+          )}
+          <p className="flex items-center gap-1.5 text-[11.5px] text-ink/40 ml-auto">
+            <Icon name="shield" className="w-3.5 h-3.5" />
+            {lang === 'it' ? 'I tuoi dati sono al sicuro' : 'Your data is safe'}
+          </p>
+        </div>
+      </Card>
+    </div>
+  )
+}
+
+function GreetingCard({ streak }) {
+  const { lang, name } = useApp()
+  return (
+    <Card large className="relative mb-6 overflow-hidden px-6 sm:px-8 py-7 sm:py-9">
+      <div className="pointer-events-none absolute inset-0 card-sheen" />
+      <div className="relative flex items-start justify-between gap-6">
+        <div className="flex-1 min-w-0">
+          <p className="font-mono-data text-[11px] text-ink/45 uppercase tracking-[0.12em] mb-2">
+            {longDate(new Date(), lang)}
+          </p>
+          <h1 className="font-display text-[28px] sm:text-[34px] font-600 text-ink leading-[1.12] tracking-tight">
+            {greeting(lang)}, <span className="text-brand-dark">{name}</span> 👋
+          </h1>
+          <p className="text-ink/55 text-[14px] sm:text-[15px] mt-2.5 max-w-md leading-relaxed">
+            {t('subtitle_home', lang)}
+          </p>
+        </div>
+        <div className="hidden sm:flex shrink-0 w-[120px] items-center justify-center">
+          <Garden streak={streak} />
+        </div>
+      </div>
+    </Card>
+  )
+}
+
+/** The streak garden: one stem per logged day, flowers once the streak is long. */
+function Garden({ streak }) {
+  const { lang } = useApp()
+  const tier = streak >= 14 ? 3 : streak >= 7 ? 2 : streak >= 3 ? 1 : streak >= 1 ? 0 : -1
+  const W = 92, H = 46, pad = 12
+  const stems = streak === 0 ? 0 : Math.min(streak, 6)
+  const xs = stems === 1 ? [W / 2]
+    : Array.from({ length: stems }).map((_, i) => pad + (i * (W - pad * 2)) / (stems - 1))
+  const h = 14 + Math.min(streak, 12) * 2.2
+
+  return (
+    <div className="flex flex-col items-center gap-1.5">
+      <svg viewBox={`0 0 ${W} ${H + 4}`} className="w-[92px] h-[54px]">
+        <path d={`M0 ${H} L${W} ${H}`} stroke="hsl(var(--garden-ground-2))" strokeWidth="2.5" strokeLinecap="round" />
+        {tier === -1 && <circle cx={W / 2} cy={H - 3} r="3" fill="#8C7355" opacity="0.6" />}
+        {xs.map((x, i) => (
+          <g key={i}>
+            <path d={`M ${x} ${H} Q ${x - 3} ${H - h / 2} ${x} ${H - h}`} stroke="#4FAF82" strokeWidth="2.6" fill="none" strokeLinecap="round" />
+            <ellipse cx={x - 5} cy={H - h * 0.5} rx="6" ry="3.2" fill="#54B88E" transform={`rotate(-26 ${x - 5} ${H - h * 0.5})`} />
+            <ellipse cx={x + 5} cy={H - h * 0.7} rx="6" ry="3.2" fill="#4FAF82" transform={`rotate(26 ${x + 5} ${H - h * 0.7})`} />
+            {tier >= 3 && <circle cx={x} cy={H - h} r="3.4" fill="#E8B86B" />}
+          </g>
+        ))}
+      </svg>
+      <div className="flex items-baseline gap-1">
+        <span className="font-display text-[26px] font-700 text-brand-dark leading-none">{streak}</span>
+        <span className="text-[11px] text-ink/45">{t(streak === 1 ? 'garden_day' : 'garden_days', lang)}</span>
+      </div>
+    </div>
+  )
+}
+
+/** The extra questions a condition adds to the diary. */
+function ModuleFields({ fields }) {
+  const [values, setValues] = useState({})
+  const set = (k, v) => setValues({ ...values, [k]: v })
+
+  return (
+    <div className="space-y-5">
+      {fields.map((f) => {
+        if (f.type === 'slider') {
+          return <Slider key={f.key} label={f.label} value={values[f.key] ?? f.min ?? 0}
+                         max={f.max ?? 10} onChange={(v) => set(f.key, v)} />
+        }
+        if (f.type === 'select') {
+          return (
+            <Field key={f.key} label={f.label}>
+              <select className="input-float" value={values[f.key] || ''} onChange={(e) => set(f.key, e.target.value)}>
+                <option value="">—</option>
+                {(f.options || []).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+            </Field>
+          )
+        }
+        if (f.type === 'number') {
+          return (
+            <Field key={f.key} label={f.label}>
+              <div className="flex items-center gap-2">
+                <input type="number" className="input-float !w-36 font-mono-data" placeholder={f.placeholder || ''}
+                       value={values[f.key] ?? ''} onChange={(e) => set(f.key, e.target.value)} />
+                {f.unit && <span className="text-[13px] text-ink/50">{f.unit}</span>}
+              </div>
+            </Field>
+          )
+        }
+        if (f.type === 'chips' || f.type === 'checkbox') {
+          const chosen = values[f.key] || []
+          return (
+            <Field key={f.key} label={f.label}>
+              <div className="flex flex-wrap gap-2">
+                {(f.options || []).map((o) => {
+                  const on = chosen.includes(o)
+                  return (
+                    <button key={o} className="toggle-chip"
+                            style={on ? { backgroundColor: '#4FAF82', borderColor: '#4FAF82', color: '#fff' } : undefined}
+                            onClick={() => set(f.key, on ? chosen.filter((c) => c !== o) : [...chosen, o])}>
+                      {o}
+                    </button>
+                  )
+                })}
+              </div>
+            </Field>
+          )
+        }
+        return (
+          <Field key={f.key} label={f.label}>
+            <input className="input-float" placeholder={f.placeholder || ''}
+                   value={values[f.key] || ''} onChange={(e) => set(f.key, e.target.value)} />
+          </Field>
+        )
+      })}
+    </div>
+  )
+}
+
+/* ==========================================================================
+   SCREEN — PROFILE
+   The page Mery asked for. Edit freely: this is the point of the prototype.
+   ========================================================================== */
+
+function ProfileScreen() {
+  const { lang, name, setName, entries, conditions } = useApp()
+  const [editing, setEditing] = useState(false)
+  const [draft, setDraft] = useState(name)
+  const en = lang === 'en'
+
+  return (
+    <div>
+      <h1 className="font-display text-[28px] sm:text-[34px] font-600 text-ink leading-[1.12] tracking-tight mb-1">
+        {en ? 'Profile' : 'Profilo'}
+      </h1>
+      <p className="text-ink/55 text-[14px] mb-6">
+        {en ? 'Your account and preferences.' : 'Il tuo account e le tue preferenze.'}
+      </p>
+
+      {/* Who you are */}
+      <Card className="p-5 sm:p-6 mb-5">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center justify-center w-16 h-16 rounded-3xl bg-brand-soft shrink-0">
+            <span className="font-display text-[24px] font-700 text-brand-dark">
+              {name.slice(0, 1).toUpperCase()}
+            </span>
+          </div>
+          <div className="flex-1 min-w-0">
+            {editing ? (
+              <div className="flex items-center gap-2">
+                <input className="input-float !h-11" value={draft} onChange={(e) => setDraft(e.target.value)} />
+                <button className="btn-primary !py-2.5 !px-4"
+                        onClick={() => { setName(draft.trim() || name); setEditing(false) }}>
+                  <Icon name="check" className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <>
+                <h2 className="font-display text-[20px] font-600 text-ink">{name}</h2>
+                <p className="text-[13px] text-ink/50 flex items-center gap-1.5 mt-0.5">
+                  <Icon name="mail" className="w-3.5 h-3.5" /> elena@example.com
+                </p>
+              </>
+            )}
+          </div>
+          {!editing && (
+            <button className="btn-ghost !py-2 !px-3.5" onClick={() => { setDraft(name); setEditing(true) }}>
+              {en ? 'Edit' : 'Modifica'}
+            </button>
+          )}
+        </div>
+      </Card>
+
+      {/* A glance at their history */}
+      <div className="grid sm:grid-cols-3 gap-3 mb-5">
+        <Card className="p-4">
+          <p className="text-[12.5px] text-ink/50 mb-1.5">{en ? 'Entries logged' : 'Voci registrate'}</p>
+          <p className="font-display text-[28px] font-700 text-ink leading-none">{entries.length}</p>
+        </Card>
+        <Card className="p-4">
+          <p className="text-[12.5px] text-ink/50 mb-1.5">{en ? 'Conditions' : 'Condizioni'}</p>
+          <p className="font-display text-[28px] font-700 text-ink leading-none">{conditions.length}</p>
+        </Card>
+        <Card className="p-4">
+          <p className="text-[12.5px] text-ink/50 mb-1.5">{en ? 'Member since' : 'Iscritta dal'}</p>
+          <p className="font-display text-[20px] font-700 text-ink leading-none pt-1.5">
+            {shortDate(minusDays(todayISO(), 90), lang)}
+          </p>
+        </Card>
+      </div>
+
+      {/* Security */}
+      <Card className="p-5 sm:p-6 mb-5">
+        <h2 className="font-display text-[18px] font-600 text-ink flex items-center gap-2 mb-4">
+          <Icon name="lock" className="w-4 h-4 text-brand" />
+          {en ? 'Security' : 'Sicurezza'}
+        </h2>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between gap-4 p-4 card-inner">
+            <div>
+              <p className="text-[14px] font-500 text-ink">{en ? 'Password' : 'Password'}</p>
+              <p className="text-[12px] text-ink/45">
+                {en ? 'Last changed 3 months ago' : 'Cambiata 3 mesi fa'}
+              </p>
+            </div>
+            <button className="btn-ghost !py-2 !px-3.5">{en ? 'Change' : 'Cambia'}</button>
+          </div>
+          <div className="flex items-center justify-between gap-4 p-4 card-inner">
+            <div>
+              <p className="text-[14px] font-500 text-ink">{en ? 'Email address' : 'Indirizzo email'}</p>
+              <p className="text-[12px] text-ink/45">elena@example.com</p>
+            </div>
+            <button className="btn-ghost !py-2 !px-3.5">{en ? 'Change' : 'Cambia'}</button>
+          </div>
+        </div>
+      </Card>
+
+      {/* Data rights */}
+      <Card className="p-5 sm:p-6 mb-5">
+        <h2 className="font-display text-[18px] font-600 text-ink flex items-center gap-2">
+          <Icon name="shield" className="w-4 h-4 text-brand" />
+          {en ? 'Your data' : 'I tuoi dati'}
+        </h2>
+        <p className="text-[13px] text-ink-soft leading-relaxed mt-2 mb-4">
+          {en
+            ? 'You can take a full copy with you at any time, or delete everything permanently.'
+            : 'Puoi portarne con te una copia completa in qualsiasi momento, oppure eliminare tutto definitivamente.'}
+        </p>
+        <div className="flex flex-wrap gap-2.5">
+          <button className="btn-ghost">
+            <Icon name="download" className="w-4 h-4 text-brand" />
+            {en ? 'Export my data' : 'Esporta i miei dati'}
+          </button>
+          <button className="btn-ghost !text-[#C56B6B]">
+            <Icon name="trash" className="w-4 h-4" />
+            {en ? 'Delete everything' : 'Elimina tutto'}
+          </button>
+        </div>
+      </Card>
+
+      <button className="btn-ghost w-full !py-3.5">
+        <Icon name="logout" className="w-4 h-4" />
+        {t('logout', lang)}
+      </button>
+    </div>
+  )
+}
+
+/* ==========================================================================
+   SCREEN — CONDITIONS
+   ========================================================================== */
+
+function ConditionsScreen() {
+  const { lang, conditions, setConditions } = useApp()
+  const [adding, setAdding] = useState(false)
+  const mine = conditions.map((k) => findCondition(k, lang)).filter(Boolean)
+
+  return (
+    <div>
+      <div className="flex items-center justify-between gap-4 mb-6">
+        <div>
+          <h1 className="font-display text-[28px] sm:text-[34px] font-600 text-ink leading-[1.12] tracking-tight">
+            {t('my_pathologies_title', lang)}
+          </h1>
+          <p className="text-ink/55 text-[14px] mt-1.5">{t('my_pathologies_subtitle', lang)}</p>
+        </div>
+        <button className="btn-primary shrink-0" onClick={() => setAdding(!adding)}>
+          <Icon name="plus" className="w-4 h-4" />
+          <span className="hidden sm:inline">{t('add_pathology', lang)}</span>
+        </button>
+      </div>
+
+      {adding && (
+        <Card className="p-5 sm:p-6 mb-6">
+          <div className="flex flex-wrap gap-2">
+            {conditionsFor(lang).filter((c) => !conditions.includes(c.key)).map((c) => (
+              <button key={c.key} className="cond-pill"
+                      onClick={() => { setConditions([...conditions, c.key]); setAdding(false) }}>
+                <span>{c.emoji}</span> {c.label}
+              </button>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {mine.length === 0 ? (
+        <Card className="p-12 text-center">
+          <p className="text-ink/45 text-sm">{t('no_pathologies', lang)}</p>
+        </Card>
+      ) : (
+        <div className="grid sm:grid-cols-2 gap-4">
+          {mine.map((c) => (
+            <Card key={c.key} className="p-5 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-1" style={{ backgroundColor: c.color }} />
+              <div className="flex items-start justify-between mb-3 mt-1">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-2xl text-[20px]"
+                       style={{ backgroundColor: c.color + '14' }}>{c.emoji}</div>
+                  <h3 className="font-display text-[17px] font-600 text-ink">{c.label}</h3>
+                </div>
+                <button className="text-ink/35 hover:text-[#C56B6B] transition-colors"
+                        onClick={() => setConditions(conditions.filter((k) => k !== c.key))}>
+                  <Icon name="trash" className="w-[17px] h-[17px]" />
+                </button>
+              </div>
+              <p className="text-[10px] font-600 text-brand-dark uppercase tracking-[0.1em] mb-1.5">
+                {t('monitored_data', lang)}
+              </p>
+              <p className="text-[13px] text-ink-soft leading-relaxed">
+                {c.fields.map((f) => f.label).join(' · ')}
+              </p>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ==========================================================================
+   SCREEN — TRENDS
+   ========================================================================== */
+
+function TrendsScreen() {
+  const { lang, entries } = useApp()
+  const [days, setDays] = useState(7)
+
+  const period = useMemo(() => {
+    const from = minusDays(todayISO(), days - 1)
+    return entries.filter((e) => e.entry_date >= from).slice().reverse()
+  }, [entries, days])
+
+  const avg = (key) => {
+    const vals = period.map((e) => e[key]).filter((v) => v != null)
+    return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null
+  }
+
+  const series = (key) => period.map((e) => ({ value: e[key], label: shortDate(e.entry_date, lang) }))
+
+  const ribbon = useMemo(() => {
+    const out = []
+    for (let i = days - 1; i >= 0; i--) {
+      const date = minusDays(todayISO(), i)
+      const entry = entries.find((e) => e.entry_date === date)
+      out.push({ date, entry, color: entry ? (findCondition(entry.module, lang)?.color || '#7A8B85') : null })
+    }
+    return out
+  }, [entries, days, lang])
+
+  const metrics = [
+    { label: t('pain', lang), value: avg('pain') },
+    { label: t('trend_energy', lang), value: avg('energy') },
+    { label: t('trend_sleep', lang), value: avg('sleep_hours') },
+  ]
+
+  return (
+    <div>
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+        <div>
+          <h1 className="font-display text-[28px] sm:text-[34px] font-600 text-ink leading-[1.12] tracking-tight">
+            {t('trends_title', lang)}
+          </h1>
+          <p className="text-ink/55 text-[14px] mt-1.5">{t('trends_subtitle', lang)}</p>
+        </div>
+        <select className="input-float !w-auto !h-10 !text-[13px] font-500"
+                value={days} onChange={(e) => setDays(parseInt(e.target.value))}>
+          <option value="7">{t('last_7', lang)}</option>
+          <option value="14">{t('last_14', lang)}</option>
+          <option value="30">{t('last_30', lang)}</option>
+        </select>
+      </div>
+
+      <Card className="p-5 sm:p-6 mb-5">
+        <h2 className="font-display text-[18px] font-600 text-ink mb-1.5">{t('how_are_you_doing', lang)}</h2>
+        <p className="text-[12px] text-ink/45 mb-5 leading-relaxed">{t('comparison_note', lang)}</p>
+        <div className="grid sm:grid-cols-3 gap-3">
+          {metrics.map((m) => (
+            <div key={m.label} className="card-inner p-4">
+              <p className="text-[12.5px] text-ink/50 mb-1.5">{m.label}</p>
+              {m.value != null ? (
+                <span className="font-display text-[28px] font-700 text-ink leading-none">{m.value.toFixed(1)}</span>
+              ) : (
+                <p className="text-[12.5px] text-ink/40 italic">{t('need_more_days', lang)}</p>
+              )}
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      <Card className="p-5 sm:p-6 mb-5">
+        <h2 className="font-display text-[17px] font-600 text-ink mb-4">{t('pain_line', lang)}</h2>
+        <LineChart points={series('pain')} color="#4FAF82" max={10} height={200} />
+      </Card>
+
+      <div className="grid sm:grid-cols-3 gap-4 mb-5">
+        <Card className="p-5">
+          <h2 className="font-display text-[14px] font-600 text-ink mb-3">{t('trend_energy', lang)}</h2>
+          <LineChart points={series('energy')} color="#B8863B" max={10} height={120} />
+        </Card>
+        <Card className="p-5">
+          <h2 className="font-display text-[14px] font-600 text-ink mb-3">{t('trend_sleep', lang)}</h2>
+          <LineChart points={series('sleep_hours')} color="#4A6FA5" max={12} height={120} />
+        </Card>
+        <Card className="p-5">
+          <h2 className="font-display text-[14px] font-600 text-ink mb-3">{t('trend_mood', lang)}</h2>
+          <LineChart points={series('mood')} color="#8A5A8A" max={5} height={120} />
+        </Card>
+      </div>
+
+      <Card className="p-5 sm:p-6 mb-5">
+        <h2 className="font-display text-[16px] font-600 text-ink mb-3 flex items-center gap-2">
+          <Icon name="calendar" className="w-4 h-4 text-brand" /> {t('continuity_title', lang)}
+        </h2>
+        <ContinuityRibbon days={ribbon} />
+      </Card>
+
+      <Card className="p-5 sm:p-6">
+        <h2 className="font-display text-[16px] font-600 text-ink mb-3">{t('recent_notes', lang)}</h2>
+        <div className="space-y-3">
+          {entries.filter((e) => e.notes).slice(0, 4).map((e) => (
+            <div key={e.id} className="border-l-2 border-brand/30 pl-3.5">
+              <p className="text-[11px] text-ink/45 font-mono-data mb-0.5">{shortDate(e.entry_date, lang)}</p>
+              <p className="text-[13px] text-ink-soft leading-relaxed">{e.notes}</p>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  )
+}
+
+/** The curved ribbon showing which days were logged, and how bad they were. */
+function ContinuityRibbon({ days }) {
+  const { lang } = useApp()
+  const STEP = 36, BASE = 34, H = 150, SPAN = 64
+  const W = Math.max(days.length * STEP, 1)
+  const pts = days.map((d, i) => ({
+    x: i * STEP + STEP / 2,
+    y: d.entry && d.entry.pain != null ? BASE + (d.entry.pain / 10) * SPAN : BASE,
+    day: d,
+  }))
+  const path = pts.map((p, i) => `${i ? 'L' : 'M'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ')
+
+  return (
+    <div>
+      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="w-full" style={{ height: H }}>
+        <line x1="0" y1={BASE} x2={W} y2={BASE} stroke="currentColor" className="text-ink/10" />
+        <path d={path} fill="none" stroke="#4FAF82" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        {pts.map((p, i) => (
+          <circle key={i} cx={p.x} cy={p.y} r={p.day.entry ? 5 : 3.5}
+                  fill={p.day.color || '#DDE3DF'} stroke="#fff" strokeWidth="1.5">
+            <title>{shortDate(p.day.date, lang)}</title>
+          </circle>
+        ))}
+      </svg>
+      <div className="flex flex-wrap gap-3 mt-4">
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#DDE3DF' }} />
+          <span className="text-[11.5px] text-ink/55">{t('no_entry', lang)}</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ==========================================================================
+   SCREEN — DOCUMENTS / CHECK-UPS / THERAPIES
+   ========================================================================== */
+
+const DOC_TYPES = {
+  it: { analisi_sangue: '🩸 Analisi del sangue', risonanza: '🧲 Risonanza magnetica', tac: '🩻 TAC',
+        ecografia: '🌊 Ecografia', visita: '🩺 Visita specialistica', altro: '📄 Altro' },
+  en: { analisi_sangue: '🩸 Blood test', risonanza: '🧲 MRI scan', tac: '🩻 CT scan',
+        ecografia: '🌊 Ultrasound', visita: '🩺 Specialist visit', altro: '📄 Other' },
+}
+const SPECIALISTS = {
+  it: { ginecologo: 'Ginecologo/a', gastroenterologo: 'Gastroenterologo/a', neurologo: 'Neurologo/a',
+        diabetologo: 'Diabetologo/a', medico_base: 'Medico di base' },
+  en: { ginecologo: 'Gynecologist', gastroenterologo: 'Gastroenterologist', neurologo: 'Neurologist',
+        diabetologo: 'Diabetologist', medico_base: 'General practitioner' },
+}
+
+function DocumentsScreen() {
+  const { lang, documents, setDocuments } = useApp()
+  return (
+    <div>
+      <div className="flex items-center justify-between gap-4 mb-6">
+        <div>
+          <h1 className="font-display text-[28px] sm:text-[34px] font-600 text-ink leading-[1.12] tracking-tight">
+            {t('documents_title', lang)}
+          </h1>
+          <p className="text-ink/55 text-[14px] mt-1.5">{t('documents_subtitle', lang)}</p>
+        </div>
+        <button className="btn-primary shrink-0">
+          <Icon name="plus" className="w-4 h-4" />
+          <span className="hidden sm:inline">{t('add_document', lang)}</span>
+        </button>
+      </div>
+
+      {documents.length === 0 ? (
+        <Card className="p-12 text-center">
+          <Icon name="file" className="w-8 h-8 text-ink/25 mx-auto mb-3" />
+          <p className="text-ink/45 text-sm">{t('no_documents', lang)}</p>
+        </Card>
+      ) : (
+        <div className="space-y-3">
+          {documents.map((d) => (
+            <Card key={d.id} className="p-4 flex items-center gap-4">
+              <div className="w-14 h-14 card-inner rounded-2xl flex items-center justify-center text-[22px] shrink-0">
+                {(DOC_TYPES[lang][d.type] || '📄').slice(0, 2)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[14px] font-500 text-ink">{DOC_TYPES[lang][d.type]}</p>
+                <p className="text-[12px] text-ink/45 font-mono-data">{shortDate(d.date, lang)}</p>
+                {d.description && <p className="text-[13px] text-ink-soft mt-1">{d.description}</p>}
+              </div>
+              <button className="text-ink/35 hover:text-[#C56B6B] transition-colors"
+                      onClick={() => setDocuments(documents.filter((x) => x.id !== d.id))}>
+                <Icon name="trash" className="w-[17px] h-[17px]" />
+              </button>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function CheckupsScreen() {
+  const { lang, checkups, setCheckups } = useApp()
+  return (
+    <div>
+      <h1 className="font-display text-[28px] sm:text-[34px] font-600 text-ink leading-[1.12] tracking-tight mb-6">
+        {t('appointments_title', lang)}
+      </h1>
+
+      <Card className="p-5 sm:p-6 mb-5">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-display text-[18px] font-600 text-ink">{t('upcoming_checkups', lang)}</h2>
+          <button className="btn-ghost !py-2 !px-3.5">
+            <Icon name="plus" className="w-4 h-4" /> {t('add_btn', lang)}
+          </button>
+        </div>
+
+        {checkups.length === 0 ? (
+          <div className="flex flex-col items-center py-8 text-center">
+            <Icon name="calendar" className="w-7 h-7 text-ink/25 mb-2" />
+            <p className="text-ink/45 text-sm">{t('no_future_checkups', lang)}</p>
+          </div>
+        ) : (
+          <div className="space-y-2.5">
+            {checkups.map((c) => {
+              const inDays = Math.round((new Date(c.date) - new Date(todayISO())) / 86400000)
+              return (
+                <div key={c.id} className="flex items-center gap-3 p-4 card-inner">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-brand-soft">
+                    <Icon name="calendar" className="w-[18px] h-[18px] text-brand-dark" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[14px] font-500 text-ink">{SPECIALISTS[lang][c.specialist]}</p>
+                    <p className="text-[12px] text-ink/45 font-mono-data">{shortDate(c.date, lang)}</p>
+                  </div>
+                  <span className="text-[13px] font-600 text-brand-dark font-mono-data px-2.5 py-1 rounded-full bg-brand-soft">
+                    {t('in_days', lang).replace('{n}', inDays)}
+                  </span>
+                  <button className="text-ink/35 hover:text-[#C56B6B]"
+                          onClick={() => setCheckups(checkups.filter((x) => x.id !== c.id))}>
+                    <Icon name="trash" className="w-4 h-4" />
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </Card>
+
+      <Card className="p-5 sm:p-6">
+        <h2 className="font-display text-[18px] font-600 text-ink mb-4">{t('prepare_visit', lang)}</h2>
+        <ul className="space-y-3">
+          {['prep_1', 'prep_2', 'prep_3', 'prep_4'].map((k) => (
+            <li key={k} className="flex items-start gap-3">
+              <Icon name="check" className="w-[18px] h-[18px] text-brand shrink-0 mt-0.5" />
+              <span className="text-[13.5px] text-ink-soft leading-relaxed">{t(k, lang)}</span>
+            </li>
+          ))}
+        </ul>
+      </Card>
+    </div>
+  )
+}
+
+function TherapiesScreen() {
+  const { lang, therapies, setTherapies } = useApp()
+  return (
+    <div>
+      <h1 className="font-display text-[28px] sm:text-[34px] font-600 text-ink leading-[1.12] tracking-tight mb-6">
+        {t('therapies_title', lang)}
+      </h1>
+
+      <div className="flex items-center justify-between mb-4 gap-4">
+        <p className="text-ink/55 text-[14px]">{t('therapies_subtitle', lang)}</p>
+        <button className="btn-primary shrink-0">
+          <Icon name="plus" className="w-4 h-4" />
+          <span className="hidden sm:inline">{t('add_medication', lang)}</span>
+        </button>
+      </div>
+
+      {therapies.length === 0 ? (
+        <Card className="p-12 text-center">
+          <Icon name="pill" className="w-8 h-8 text-ink/25 mx-auto mb-3" />
+          <p className="text-ink/45 text-sm">{t('no_medications', lang)}</p>
+        </Card>
+      ) : (
+        <div className="space-y-3">
+          {therapies.map((th) => (
+            <Card key={th.id} className="p-4 flex items-center gap-4">
+              <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-brand-soft shrink-0">
+                <Icon name="pill" className="w-5 h-5 text-brand" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[14px] font-500 text-ink">{th.name}</p>
+                <p className="text-[12px] text-ink/50">
+                  {th.dosage} · <span className="font-mono-data">{th.time}</span> ·{' '}
+                  {lang === 'en' ? 'Every day' : 'Ogni giorno'}
+                </p>
+              </div>
+              <button className="text-ink/35 hover:text-[#C56B6B] transition-colors"
+                      onClick={() => setTherapies(therapies.filter((x) => x.id !== th.id))}>
+                <Icon name="trash" className="w-[17px] h-[17px]" />
+              </button>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      <p className="text-[11.5px] text-ink/40 mt-4 italic leading-relaxed">{t('reminder_note', lang)}</p>
+    </div>
+  )
+}
+
+/* ==========================================================================
+   SCREEN — RESOURCES / GUIDE
+   ========================================================================== */
+
+function ResourcesScreen() {
+  const { lang } = useApp()
+  const [filter, setFilter] = useState('all')
+  const list = conditionsFor(lang)
+  const cards = (filter === 'all' ? list : list.filter((c) => c.key === filter))
+    .flatMap((c) => c.contentCards.map((card, i) => ({ ...card, condition: c, i })))
+
+  return (
+    <div>
+      <h1 className="font-display text-[28px] sm:text-[34px] font-600 text-ink leading-[1.12] tracking-tight mb-1">
+        {t('contents_title', lang)}
+      </h1>
+      <p className="text-ink/55 text-[14px] mb-5">{t('contents_subtitle', lang)}</p>
+
+      <div className="flex flex-wrap gap-2 mb-6">
+        <button className="toggle-chip" onClick={() => setFilter('all')}
+                style={filter === 'all' ? { backgroundColor: '#4FAF82', borderColor: '#4FAF82', color: '#fff' } : undefined}>
+          {t('all_filter', lang)}
+        </button>
+        {list.map((c) => (
+          <button key={c.key} className="toggle-chip" onClick={() => setFilter(c.key)}
+                  style={filter === c.key ? { backgroundColor: c.color, borderColor: c.color, color: '#fff' } : undefined}>
+            <span>{c.emoji}</span>&nbsp;{c.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="grid sm:grid-cols-2 gap-4">
+        {cards.map((card) => (
+          <Card key={card.condition.key + card.i} className="p-5 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1" style={{ backgroundColor: card.condition.color }} />
+            <div className="flex items-center gap-2 mb-2.5 mt-1">
+              <div className="flex items-center justify-center w-8 h-8 rounded-xl text-[16px]"
+                   style={{ backgroundColor: card.condition.color + '14' }}>{card.condition.emoji}</div>
+              <span className="text-[11px] font-500 px-2 py-0.5 rounded-full"
+                    style={{ backgroundColor: card.condition.color + '14', color: card.condition.color }}>
+                {card.condition.label}
+              </span>
+            </div>
+            <h3 className="font-display text-[17px] font-600 text-ink mb-2 leading-snug">{card.title}</h3>
+            <p className="text-[13px] text-ink-soft leading-relaxed">{card.body}</p>
+          </Card>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function GuideScreen() {
+  const { lang } = useApp()
+  const en = lang === 'en'
+  return (
+    <div>
+      <h1 className="font-display text-[28px] sm:text-[34px] font-600 text-ink leading-[1.12] tracking-tight mb-1">
+        {en ? 'Guide' : 'Guida'}
+      </h1>
+      <p className="text-ink/55 text-[14px] mb-6">
+        {en ? 'How this prototype works.' : 'Come funziona questo prototipo.'}
+      </p>
+
+      <Card className="p-6">
+        <h2 className="font-display text-[18px] font-600 text-ink mb-3">
+          {en ? 'What you can change' : 'Cosa puoi cambiare'}
+        </h2>
+        <ul className="space-y-2.5 text-[13.5px] text-ink-soft leading-relaxed">
+          <li>· {en ? 'Any wording — in the T object near the top of the file' : 'Qualsiasi testo — nell’oggetto T in cima al file'}</li>
+          <li>· {en ? 'Colours and shapes — in the <style> block' : 'Colori e forme — nel blocco <style>'}</li>
+          <li>· {en ? 'A screen — the function named after it, e.g. ProfileScreen' : 'Una schermata — la funzione con il suo nome, es. ProfileScreen'}</li>
+          <li>· {en ? 'The menu — the TABS array' : 'Il menu — l’array TABS'}</li>
+        </ul>
+        <div className="mt-5 rounded-2xl p-4 amber-soft" style={{ border: '1px solid #B8863B30' }}>
+          <p className="text-[13px] text-[#7A5623] leading-relaxed">
+            {en
+              ? 'This is a prototype for design decisions. Nothing is saved, and changes here do not reach the real app — they get rebuilt there once approved.'
+              : 'Questo è un prototipo per le decisioni di design. Niente viene salvato e le modifiche qui non arrivano all’app vera: vengono ricostruite lì una volta approvate.'}
+          </p>
+        </div>
+      </Card>
+    </div>
+  )
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />)
+
+</script>
+</body>
+</html>

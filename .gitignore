@@ -7,3 +7,4 @@ dist
 .env.local.*
 public/APP-COMPLETA.html
 dist-singlefile
+public/PROTOTIPO.html
