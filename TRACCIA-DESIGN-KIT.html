@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Traccia — design kit</title>
+
+<!--
+  TRACCIA DESIGN KIT
+  ==================
+  One self-contained file carrying Traccia's real design system: the colour
+  tokens, the fonts, and every component class the app uses.
+
+  Give this file to Claude and ask for a mockup of a screen. Because the styles
+  here are the app's actual styles, anything built on top will look right.
+
+  Open it by double-clicking. Light/dark toggle is top right.
+
+  This is a SKETCHPAD, not the app. Changes here do not reach the real product —
+  they are a way to decide how something should look before it gets built.
+-->
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;450;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+
+
+
+
+  :root {
+    /* Raw palette */
+    --bg: #f9fafb;
+    --surface: #ffffff;
+    --ink: #1a2f2a;
+    --muted: #7a8b85;
+    --line: #ebeeec;
+    --brand: #4faf82;
+    --brand-dark: #3b9a6e;
+    --brand-soft: #e8f5ee;
+
+    /* shadcn-compatible tokens */
+    --background: 210 20% 98%;
+    --foreground: 166 29% 14%;
+    --card: 0 0% 100%;
+    --card-foreground: 166 29% 14%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 166 29% 14%;
+    --primary: 152 38% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 140 8% 93%;
+    --secondary-foreground: 166 29% 14%;
+    --muted: 140 8% 93%;
+    --muted-foreground: 159 7% 51%;
+    --accent: 148 39% 94%;
+    --accent-foreground: 152 38% 30%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 140 8% 93%;
+    --input: 140 8% 93%;
+    --ring: 152 38% 50%;
+    --radius: 14px;
+
+    /* Traccia semantic tokens */
+    --c-ink: 166 29% 14%;
+    --c-ink-soft: 160 10% 33%;
+    --c-canvas: 210 20% 98%;
+    --c-line: 140 8% 92%;
+    --c-line-soft: 140 8% 95%;
+    --c-surface2: 140 8% 96%;
+    --garden-ground-1: 140 16% 90%;
+    --garden-ground-2: 140 16% 84%;
+
+    --font-heading: 'Fraunces', Georgia, serif;
+    --font-display: 'Fraunces', Georgia, serif;
+    --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  }
+
+  .dark {
+    --background: 165 32% 5%;
+    --foreground: 140 14% 94%;
+    --card: 165 30% 9%;
+    --card-foreground: 140 14% 94%;
+    --popover: 165 30% 9%;
+    --popover-foreground: 140 14% 94%;
+    --primary: 152 40% 58%;
+    --primary-foreground: 165 32% 5%;
+    --secondary: 165 28% 14%;
+    --secondary-foreground: 140 14% 94%;
+    --muted: 165 28% 14%;
+    --muted-foreground: 140 10% 68%;
+    --accent: 165 28% 16%;
+    --accent-foreground: 140 14% 94%;
+    --destructive: 0 60% 42%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 165 28% 18%;
+    --input: 165 28% 18%;
+    --ring: 152 40% 58%;
+
+    --c-ink: 140 14% 92%;
+    --c-ink-soft: 140 8% 68%;
+    --c-canvas: 165 32% 5%;
+    --c-line: 165 28% 18%;
+    --c-line-soft: 165 28% 16%;
+    --c-surface2: 165 28% 16%;
+    --garden-ground-1: 165 28% 14%;
+    --garden-ground-2: 165 28% 12%;
+  }
+
+  * {
+    border-color: hsl(var(--border));
+    outline-color: hsl(var(--ring) / 0.5);
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    background-image: radial-gradient(
+      1100px 560px at 50% -8%,
+      rgba(79, 175, 130, 0.07),
+      transparent 60%
+    );
+    background-attachment: fixed;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  .font-display {
+    font-family: var(--font-heading);
+    letter-spacing: -0.01em;
+  }
+
+  /* ---------- Cards ---------- */
+  .card-float {
+    background-color: rgba(255, 255, 255, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    border-radius: 20px;
+    box-shadow:
+      0 1px 2px rgba(16, 24, 22, 0.03),
+      0 18px 40px -14px rgba(16, 24, 22, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  .card-float-lg {
+    background-color: rgba(255, 255, 255, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    border-radius: 24px;
+    box-shadow:
+      0 1px 3px rgba(16, 24, 22, 0.04),
+      0 24px 48px -16px rgba(16, 24, 22, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  .card-inner {
+    background-color: #f4f7f5;
+    border: 1px solid #eef1f0;
+    border-radius: 16px;
+  }
+
+  .dark .card-float,
+  .dark .card-float-lg {
+    background-color: rgba(22, 34, 30, 0.62);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.3),
+      0 22px 48px -16px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .dark .card-inner {
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .dark .bg-brand-soft {
+    background-color: rgba(79, 175, 130, 0.16);
+  }
+
+  .dark .bg-brand-softer {
+    background-color: rgba(79, 175, 130, 0.1);
+  }
+
+  /* ---------- Inputs ---------- */
+  .input-float {
+    width: 100%;
+    height: 52px;
+    border: 1px solid #ebeeec;
+    border-radius: 16px;
+    background-color: #fff;
+    padding: 0 16px;
+    font-size: 14px;
+    font-weight: 450;
+    color: #1a2f2a;
+    outline: none;
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease,
+      background-color 0.15s ease;
+    appearance: none;
+  }
+
+  .input-float::placeholder {
+    color: rgba(26, 47, 42, 0.38);
+  }
+
+  .input-float:hover {
+    border-color: #dde3df;
+  }
+
+  .input-float:focus {
+    border-color: #4faf82;
+    box-shadow: 0 0 0 4px rgba(79, 175, 130, 0.12);
+    background-color: #fff;
+  }
+
+  select.input-float {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237A8B85' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 40px;
+  }
+
+  .dark .input-float {
+    background-color: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+    color: hsl(var(--c-ink));
+  }
+
+  .dark .input-float::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+  }
+
+  .dark select.input-float {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a8b5b0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  }
+
+  /* ---------- Buttons ---------- */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #54b88e, #42a577);
+    color: #fff;
+    font-weight: 500;
+    font-size: 14px;
+    border-radius: 14px;
+    padding: 13px 22px;
+    border: none;
+    cursor: pointer;
+    box-shadow:
+      0 6px 18px -5px rgba(79, 175, 130, 0.45),
+      inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    transition:
+      transform 0.1s ease,
+      box-shadow 0.15s ease,
+      filter 0.15s ease;
+  }
+
+  .btn-primary:hover {
+    filter: brightness(1.05);
+    box-shadow:
+      0 10px 24px -5px rgba(79, 175, 130, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  }
+
+  .btn-primary:active {
+    transform: scale(0.97);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    filter: none;
+  }
+
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #fff;
+    color: #1a2f2a;
+    font-weight: 500;
+    font-size: 14px;
+    border: 1px solid #ebeeec;
+    border-radius: 14px;
+    padding: 11px 18px;
+    cursor: pointer;
+    transition:
+      border-color 0.15s ease,
+      background-color 0.15s ease,
+      transform 0.1s ease;
+  }
+
+  .btn-ghost:hover {
+    border-color: #dde3df;
+    background-color: #f9fafb;
+  }
+
+  .btn-ghost:active {
+    transform: scale(0.97);
+  }
+
+  .dark .btn-ghost {
+    background: rgba(255, 255, 255, 0.04);
+    color: hsl(var(--c-ink));
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .btn-link {
+    color: #4faf82;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.15s ease;
+    background: none;
+    border: none;
+    padding: 0;
+  }
+
+  .btn-link:hover {
+    color: #3b9a6e;
+  }
+
+  .btn-link.danger {
+    color: #c56b6b;
+  }
+
+  .btn-link.danger:hover {
+    color: #b05858;
+  }
+
+  /* ---------- Pills & chips ---------- */
+  .nav-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #7a8b85;
+    white-space: nowrap;
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .nav-tab:hover {
+    color: #465550;
+  }
+
+  .nav-tab.active {
+    background-color: #e8f5ee;
+    color: #1a3c34;
+  }
+
+  .dark .nav-tab {
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  .dark .nav-tab:hover {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .dark .nav-tab.active {
+    background-color: rgba(79, 175, 130, 0.18);
+    color: hsl(var(--c-ink));
+  }
+
+  .cond-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1.5px solid #ebeeec;
+    background: #fff;
+    color: #465550;
+    cursor: pointer;
+    transition:
+      border-color 0.15s ease,
+      background-color 0.15s ease,
+      transform 0.1s ease,
+      box-shadow 0.15s ease;
+  }
+
+  .cond-pill:hover {
+    border-color: #c8d4ce;
+    box-shadow: 0 2px 8px -2px rgba(16, 24, 22, 0.06);
+  }
+
+  .cond-pill:active {
+    transform: scale(0.96);
+  }
+
+  .toggle-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 13.5px;
+    font-weight: 500;
+    border: 1.5px solid #ebeeec;
+    background: #fff;
+    color: #465550;
+    cursor: pointer;
+    transition:
+      border-color 0.15s ease,
+      background-color 0.15s ease,
+      color 0.15s ease,
+      transform 0.1s ease;
+  }
+
+  .toggle-chip:hover {
+    border-color: #c8d4ce;
+  }
+
+  .toggle-chip:active {
+    transform: scale(0.96);
+  }
+
+  .dark .cond-pill,
+  .dark .toggle-chip {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+    color: hsl(var(--c-ink-soft));
+  }
+
+  /*
+   * Soft brand wash laid over a card's own surface.
+   *
+   * This is a CSS class rather than Tailwind gradient utilities because
+   * `from-*` / `via-*` stop utilities resolve to one literal color and ignore
+   * the `.dark .bg-brand-softer` override — so a light mint stop stayed light
+   * in dark mode and washed the whole card out white.
+   */
+  .card-sheen {
+    background-image: linear-gradient(
+      to bottom right,
+      #f0f9f4,
+      hsl(var(--background)) 50%,
+      hsl(var(--background))
+    );
+  }
+
+  .dark .card-sheen {
+    background-image: linear-gradient(
+      to bottom right,
+      rgba(79, 175, 130, 0.14),
+      hsl(var(--background)) 50%,
+      hsl(var(--background))
+    );
+  }
+
+  .modal-sheen {
+    background-image: linear-gradient(to bottom, #f0f9f4, #ffffff);
+  }
+
+  .dark .modal-sheen {
+    background-image: linear-gradient(to bottom, rgba(79, 175, 130, 0.1), transparent 60%);
+  }
+
+  /* ---------- Alert surfaces ---------- */
+  .warn-soft {
+    background-color: #fbeaec;
+  }
+
+  .dark .warn-soft {
+    background-color: rgba(197, 107, 107, 0.16);
+  }
+
+  .amber-soft {
+    background-color: #fbf0e3;
+  }
+
+  .dark .amber-soft {
+    background-color: rgba(184, 134, 59, 0.16);
+  }
+
+  /* ---------- Misc ---------- */
+  .spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #eef1f0;
+    border-top-color: #4faf82;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  .font-500 {
+    font-weight: 500;
+  }
+  .font-600 {
+    font-weight: 600;
+  }
+  .font-700 {
+    font-weight: 700;
+  }
+
+  .font-mono-data {
+    font-family: var(--font-mono);
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+input[type='range'].traccia-slider {
+  appearance: none;
+  height: 10px;
+  border-radius: 999px;
+  outline: none;
+}
+
+input[type='range'].traccia-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid #4faf82;
+  cursor: pointer;
+  box-shadow:
+    0 2px 8px rgba(79, 175, 130, 0.3),
+    0 1px 3px rgba(16, 24, 22, 0.08);
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.15s ease;
+}
+
+input[type='range'].traccia-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow:
+    0 4px 14px rgba(79, 175, 130, 0.4),
+    0 1px 3px rgba(16, 24, 22, 0.1);
+}
+
+input[type='range'].traccia-slider::-webkit-slider-thumb:active {
+  transform: scale(1.05);
+}
+
+input[type='range'].traccia-slider::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid #4faf82;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(79, 175, 130, 0.3);
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+}
+
+.print-only {
+  display: none;
+}
+
+
+
+/* ---- kit-only helpers, not part of the app ---- */
+.kit-wrap { max-width: 768px; margin: 0 auto; padding: 24px 16px 64px; }
+.kit-section { margin-top: 40px; }
+.kit-label {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em;
+  text-transform: uppercase; color: hsl(var(--c-ink-soft)); margin-bottom: 12px;
+}
+.kit-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.kit-toggle {
+  position: fixed; top: 16px; right: 16px; z-index: 10;
+  border: 1px solid hsl(var(--c-line)); background: hsl(var(--background));
+  color: hsl(var(--c-ink-soft)); border-radius: 999px;
+  padding: 8px 14px; font-size: 13px; cursor: pointer;
+}
+h1, h2, h3 { font-family: var(--font-heading); color: hsl(var(--c-ink)); }
+p { color: hsl(var(--c-ink-soft)); }
+</style>
+</head>
+<body>
+
+<button class="kit-toggle" onclick="document.documentElement.classList.toggle('dark')">
+  ☀︎ / ☾  tema
+</button>
+
+<div class="kit-wrap">
+
+  <div class="kit-section">
+    <div class="kit-label">Saluto — card-float-lg</div>
+    <div class="card-float-lg" style="padding: 28px; position: relative; overflow: hidden;">
+      <div class="modal-sheen" style="position:absolute; inset:0; pointer-events:none;"></div>
+      <div style="position: relative;">
+        <p class="font-mono-data" style="font-size:11px; letter-spacing:.12em; text-transform:uppercase; opacity:.5; margin:0 0 8px;">
+          domenica 13 settembre 2026
+        </p>
+        <h1 style="font-size: 34px; font-weight: 600; margin: 0; line-height: 1.12;">
+          Buonasera, <span style="color:#3B9A6E;">Elena</span> 👋
+        </h1>
+        <p style="margin: 10px 0 0; font-size: 15px; line-height: 1.6;">
+          Facciamo una panoramica veloce dei tuoi sintomi giornalieri.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="kit-section">
+    <div class="kit-label">Pill condizioni — cond-pill</div>
+    <div class="card-float" style="padding: 20px;">
+      <div class="kit-row">
+        <button class="cond-pill"><span>🌙</span> Endometriosi</button>
+        <button class="cond-pill" style="border-color:#B15E6C; background:#B15E6C14; color:#B15E6C; font-weight:600;">
+          <span>🧠</span> Emicrania
+        </button>
+        <button class="cond-pill"><span>🍬</span> Diabete</button>
+        <button class="cond-pill"><span>🌸</span> PCOS</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="kit-section">
+    <div class="kit-label">Form — input-float, traccia-slider, btn-primary</div>
+    <div class="card-float-lg" style="padding: 24px;">
+      <h2 style="font-size:20px; font-weight:600; margin:0 0 20px;">Diario di oggi</h2>
+
+      <label style="display:block; font-size:13px; font-weight:500; opacity:.7; margin-bottom:10px;">Dolore</label>
+      <input type="range" min="0" max="10" value="3" class="traccia-slider" style="width:100%;
+        background: linear-gradient(to right, #4FAF82 30%, #EBEEEC 30%);" />
+
+      <label style="display:block; font-size:13px; font-weight:500; opacity:.7; margin:20px 0 6px;">Ore di sonno</label>
+      <input class="input-float font-mono-data" placeholder="es. 7.5" />
+
+      <div class="kit-row" style="margin-top: 20px;">
+        <button class="btn-primary">Salva voce di oggi</button>
+        <button class="btn-ghost">Annulla</button>
+        <button class="btn-link">Password dimenticata?</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="kit-section">
+    <div class="kit-label">Chip e avvisi — toggle-chip, warn-soft, amber-soft</div>
+    <div class="card-float" style="padding: 20px;">
+      <div class="kit-row" style="margin-bottom:16px;">
+        <button class="toggle-chip" style="background:#4FAF82; border-color:#4FAF82; color:#fff;">Nessuno di questi</button>
+        <button class="toggle-chip">Nausea intensa</button>
+        <button class="toggle-chip">Febbre alta</button>
+      </div>
+      <div class="warn-soft" style="border-radius:16px; padding:14px; border:1px solid #C56B6B30; margin-bottom:10px;">
+        <p style="margin:0; font-size:13px; color:#8A3A45; font-weight:500;">
+          Hai segnalato un sintomo importante. Contatta il tuo medico.
+        </p>
+      </div>
+      <div class="amber-soft" style="border-radius:16px; padding:14px; border:1px solid #B8863B30;">
+        <p style="margin:0; font-size:13px; color:#7A5623;">
+          Hai registrato un aumento del dolore nelle ultime settimane.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="kit-section">
+    <div class="kit-label">Navigazione — nav-tab</div>
+    <div class="card-float" style="padding: 14px;">
+      <div class="kit-row">
+        <button class="nav-tab active">Diario</button>
+        <button class="nav-tab">Le mie patologie</button>
+        <button class="nav-tab">Andamento</button>
+        <button class="nav-tab">Terapie</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
