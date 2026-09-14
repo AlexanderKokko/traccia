@@ -11,7 +11,13 @@ export default [
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
-      globals: { ...globals.browser, ...globals.node },
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+        // Replaced at build time by Vite's `define`; true only in the
+        // single-file build, which has to use hash routing.
+        __SINGLE_FILE__: 'readonly',
+      },
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
     settings: { react: { version: '18.3' } },

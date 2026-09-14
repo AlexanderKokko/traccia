@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, HashRouter, Routes, Route } from 'react-router-dom'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClient } from '@/lib/query-client'
 import { LanguageProvider } from '@/lib/LanguageContext'
@@ -38,13 +38,22 @@ function Lazy({ children }) {
   return <Suspense fallback={<RouteFallback />}>{children}</Suspense>
 }
 
+/**
+ * Served over http(s) the app uses real paths (/andamento). The single-file
+ * build is opened straight from disk, where there is no server to resolve those,
+ * so it uses hash routing (#/andamento) — the only form a file:// page can
+ * navigate. The flag is set at build time rather than sniffed at runtime, so the
+ * behaviour is decided once and cannot vary by how the file is opened.
+ */
+const Router = __SINGLE_FILE__ ? HashRouter : BrowserRouter
+
 export default function App() {
   return (
     <LanguageProvider>
       <AuthProvider>
         <QueryClientProvider client={queryClient}>
           <ToastProvider>
-            <BrowserRouter>
+            <Router>
               <ScrollToTop />
               <Routes>
                 {/* Public — the way in */}
@@ -142,7 +151,7 @@ export default function App() {
                   <Route path="*" element={<PageNotFound />} />
                 </Route>
               </Routes>
-            </BrowserRouter>
+            </Router>
           </ToastProvider>
         </QueryClientProvider>
       </AuthProvider>
